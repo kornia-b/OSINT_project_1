@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OSINT Entity Profiler</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #0d0d1a;
+      --surface:    #16163a;
+      --surface2:   #1e1e4a;
+      --border:     #2a2a5a;
+      --accent:     #4f8ef7;
+      --accent-dim: #2a4a8a;
+      --text:       #dde2f0;
+      --text-muted: #6b7280;
+      --text-dim:   #9ca3af;
+      --danger:     #ef4444;
+      --warn-bg:    #1f0f0f;
+      --warn-border:#7f1d1d;
+      --warn-text:  #fca5a5;
+      --green:      #34d399;
+      --yellow:     #fbbf24;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", system-ui, sans-serif;
+      font-size: 0.92rem;
+      min-height: 100vh;
+      padding: 2rem 1rem 4rem;
+    }
+
+    /* ── Header ──────────────────────────────── */
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    header .badge {
+      display: inline-block;
+      background: var(--accent-dim);
+      color: var(--accent);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      margin-bottom: 0.75rem;
+      border: 1px solid var(--accent-dim);
+    }
+    header h1 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 0.03em;
+    }
+    header p {
+      margin-top: 0.4rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* ── Layout ──────────────────────────────── */
+    .container { max-width: 880px; margin: 0 auto; }
+
+    /* ── Search card ──────────────────────────── */
+    .search-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.75rem 2rem;
+      margin-bottom: 2rem;
+    }
+    .search-card h2 {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .full { grid-column: 1 / -1; }
+
+    .field { display: flex; flex-direction: column; gap: 0.3rem; }
+    .field label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .field label .req { color: var(--danger); margin-left: 2px; }
+    .field label .opt { color: #3b4a6b; font-weight: 400; margin-left: 4px; }
+
+    input[type="text"],
+    input[type="number"] {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.9rem;
+      padding: 0.6rem 0.85rem;
+      outline: none;
+      transition: border-color 0.15s;
+      width: 100%;
+    }
+    input[type="text"]:focus,
+    input[type="number"]:focus { border-color: var(--accent); }
+    input::placeholder { color: #3b4a6b; }
+    input[type="number"] { -moz-appearance: textfield; }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+    /* Age section */
+    .age-section {
+      grid-column: 1 / -1;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.1rem;
+    }
+    .age-section h3 {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+    .age-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.9rem;
+    }
+    .age-divider {
+      display: flex;
+      align-items: flex-end;
+      padding-bottom: 0.55rem;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .age-note {
+      grid-column: 1 / -1;
+      margin-top: 0.5rem;
+      font-size: 0.75rem;
+      color: #3b4a6b;
+      line-height: 1.6;
+    }
+    .age-note span { color: var(--accent); }
+
+    /* Submit / Clear buttons */
+    .btn-row {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.75rem;
+      margin-top: 0.25rem;
+    }
+    .btn-submit,
+    .btn-clear {
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      padding: 0.8rem 1.4rem;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn-submit        { background: var(--accent); color: #fff; }
+    .btn-submit:hover  { background: #3a7be0; }
+    .btn-clear         { background: #1e1e2e; color: #6b7280; border: 1px solid #2a2a5a; }
+    .btn-clear:hover   { background: #2a1a1a; color: #ef4444; border-color: #7f1d1d; }
+    .btn-submit:active,
+    .btn-clear:active  { transform: scale(0.99); }
+
+    /* ── Alert ───────────────────────────────── */
+    .alert {
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-border);
+      border-radius: 8px;
+      color: var(--warn-text);
+      padding: 0.8rem 1.1rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.88rem;
+    }
+
+    /* ── Profile header ──────────────────────── */
+    .profile-meta {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .profile-meta h2 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .profile-meta .ts {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* ── Cards ───────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 1.1rem;
+      overflow: hidden;
+    }
+    .card-header {
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      padding: 0.65rem 1.3rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .card-header .icon { font-size: 0.95rem; }
+    .card-header h3 {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      flex: 1;
+    }
+    .card-header .count {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .card-body { padding: 1.2rem 1.3rem; }
+
+    /* ── Location card ───────────────────────── */
+    .loc-grid {
+      display: flex;
+      gap: 2.5rem;
+      flex-wrap: wrap;
+    }
+    .loc-item label {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.2rem;
+    }
+    .loc-item span {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    /* ── Age filter card ─────────────────────── */
+    .age-filter-display {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .filter-badge {
+      background: var(--accent-dim);
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      color: var(--accent);
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 0.35rem 0.85rem;
+      letter-spacing: 0.05em;
+    }
+    .filter-badge.none {
+      background: var(--surface2);
+      border-color: var(--border);
+      color: var(--text-muted);
+    }
+    .filter-label {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+    }
+
+    /* ── News card ───────────────────────────── */
+    .news-list { list-style: none; display: flex; flex-direction: column; gap: 1.1rem; }
+    .news-item {
+      border-left: 3px solid var(--accent-dim);
+      padding-left: 1rem;
+      transition: border-color 0.15s;
+    }
+    .news-item:hover { border-left-color: var(--accent); }
+    .news-item a.title {
+      font-size: 0.93rem;
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+      line-height: 1.4;
+      display: block;
+    }
+    .news-item a.title:hover { color: var(--accent); }
+    .news-item .meta {
+      margin-top: 0.25rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      gap: 0.4rem;
+      align-items: center;
+    }
+    .news-item .meta .sep { color: var(--border); }
+    .news-item .desc {
+      margin-top: 0.35rem;
+      font-size: 0.83rem;
+      color: var(--text-dim);
+      line-height: 1.55;
+    }
+
+    /* ── WHOIS card ──────────────────────────── */
+    .whois-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+    .whois-table tr:not(:last-child) td { border-bottom: 1px solid var(--border); }
+    .whois-table td { padding: 0.5rem 0.4rem; vertical-align: top; }
+    .whois-table td:first-child {
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 0.7rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      padding-right: 1.5rem;
+      width: 1%;
+    }
+    .whois-table td:last-child { color: var(--text); word-break: break-word; }
+
+    /* ── Empty / error states ────────────────── */
+    .empty {
+      font-size: 0.86rem;
+      font-style: italic;
+      color: var(--text-muted);
+    }
+    .empty.warn { color: var(--yellow); font-style: normal; font-weight: 600; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="badge">Intelligence Platform</div>
+    <h1>OSINT Entity Profiler</h1>
+    <p>Aggregate open-source intelligence on a named subject</p>
+  </header>
+
+  <!-- ── Search Form ── -->
+  <div class="search-card">
+    <h2>Search Parameters</h2>
+    <form method="POST" action="/">
+      <div class="form-grid">
+
+        <div class="field full">
+          <label for="name">Subject Name <span class="req">*</span></label>
+          <input type="text" id="name" name="name" placeholder="e.g. John Smith"
+            value="{{ form.get('name', '') }}" required />
+        </div>
+
+        <div class="field">
+          <label for="city">City <span class="opt">(optional)</span></label>
+          <input type="text" id="city" name="city" placeholder="e.g. Chicago"
+            value="{{ form.get('city', '') }}" />
+        </div>
+
+        <div class="field">
+          <label for="domain">Domain <span class="opt">(optional)</span></label>
+          <input type="text" id="domain" name="domain" placeholder="e.g. example.com"
+            value="{{ form.get('domain', '') }}" />
+        </div>
+
+        <!-- Age Filters -->
+        <div class="age-section">
+          <h3>Age Filters</h3>
+          <div class="age-row">
+
+            <div class="field">
+              <label for="exact_age">Exact Age <span class="opt">(overrides range)</span></label>
+              <input type="number" id="exact_age" name="exact_age" placeholder="e.g. 35" min="1" max="120"
+                value="{{ form.get('exact_age', '') }}" />
+            </div>
+
+            <div class="age-divider">— or range —</div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.6rem;">
+              <div class="field">
+                <label for="min_age">Min Age</label>
+                <input type="number" id="min_age" name="min_age" placeholder="28" min="1" max="120"
+                  value="{{ form.get('min_age', '') }}" />
+              </div>
+              <div class="field">
+                <label for="max_age">Max Age</label>
+                <input type="number" id="max_age" name="max_age" placeholder="45" min="1" max="120"
+                  value="{{ form.get('max_age', '') }}" />
+              </div>
+            </div>
+
+          </div>
+          <p class="age-note">
+            <span>Exact Age</span> takes full priority — range fields are ignored when it is set.
+            If only one range bound is provided, an open-ended filter is applied.
+          </p>
+        </div>
+
+        <div class="btn-row">
+          <button type="submit" class="btn-submit">Generate Profile</button>
+          <button type="button" class="btn-clear" id="btn-clear">Clear</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- ── Error ── -->
+  {% if error %}
+  <div class="alert">{{ error }}</div>
+  {% endif %}
+
+  <!-- ── Results ── -->
+  {% if profile %}
+
+  <div class="profile-meta">
+    <h2>{{ profile.entity_name }}</h2>
+    <span class="ts">{{ profile.generated_at }}</span>
+  </div>
+
+  <!-- Location -->
+  <div class="card">
+    <div class="card-header">
+      <span class="icon">📍</span>
+      <h3>Location</h3>
+    </div>
+    <div class="card-body">
+      {% set loc = profile.location %}
+      {% if loc.city %}
+        <div class="loc-grid">
+          <div class="loc-item">
+            <label>City</label>
+            <span>{{ loc.city }}</span>
+          </div>
+          {% if loc.lat is not none %}
+          <div class="loc-item">
+            <label>Latitude</label>
+            <span>{{ loc.lat }}</span>
+          </div>
+          <div class="loc-item">
+            <label>Longitude</label>
+            <span>{{ loc.lon }}</span>
+          </div>
+          {% endif %}
+        </div>
+        {% if loc.error is defined %}
+        <p class="empty" style="margin-top:.7rem">Geocoding error: {{ loc.error }}</p>
+        {% endif %}
+      {% else %}
+        <p class="empty">No city provided.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Age Filter -->
+  <div class="card">
+    <div class="card-header">
+      <span class="icon">🎯</span>
+      <h3>Age Filter</h3>
+    </div>
+    <div class="card-body">
+      <div class="age-filter-display">
+        {% set af = profile.age_filter_applied %}
+        <span class="filter-badge {% if af == 'none' %}none{% endif %}">{{ af }}</span>
+        <span class="filter-label">
+          {% if af == 'none' %}
+            No age filter applied — all results returned.
+          {% elif af.startswith('exact:') %}
+            Searching for subject at exact age {{ af.split(': ')[1] }}. Range fields were ignored.
+          {% elif af.startswith('range:') %}
+            Filtering by age range {{ af.split(': ')[1] }} (inclusive).
+          {% elif af.startswith('min only:') %}
+            Filtering for subjects aged {{ af.split(': ')[1] }} and above.
+          {% elif af.startswith('max only:') %}
+            Filtering for subjects aged {{ af.split(': ')[1] }} and below.
+          {% endif %}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- News -->
+  <div class="card">
+    <div class="card-header">
+      <span class="icon">📰</span>
+      <h3>News Mentions</h3>
+      {% if profile.news_mentions and not profile.news_mentions[0].error is defined %}
+      <span class="count">{{ profile.news_mentions | length }} result(s)</span>
+      {% endif %}
+    </div>
+    <div class="card-body">
+      {% if not profile.news_mentions %}
+        {% if profile.age_filter_applied != 'none' %}
+        <p class="empty warn">No results match the age criteria.</p>
+        {% else %}
+        <p class="empty">No news mentions found.</p>
+        {% endif %}
+      {% elif profile.news_mentions[0].error is defined %}
+        <p class="empty">{{ profile.news_mentions[0].error }}</p>
+      {% else %}
+        <ul class="news-list">
+          {% for article in profile.news_mentions %}
+          <li class="news-item">
+            <a class="title" href="{{ article.url }}" target="_blank" rel="noopener noreferrer">
+              {{ article.title }}
+            </a>
+            <div class="meta">
+              <span>{{ article.source or "Unknown source" }}</span>
+              {% if article.published_at %}
+              <span class="sep">·</span>
+              <span>{{ article.published_at[:10] }}</span>
+              {% endif %}
+              <span class="sep">·</span>
+              <a href="{{ article.url }}" target="_blank" rel="noopener noreferrer"
+                 style="color:var(--accent);text-decoration:none;font-size:0.72rem;">
+                View article ↗
+              </a>
+            </div>
+            {% if article.description %}
+            <div class="desc">{{ article.description }}</div>
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- WHOIS -->
+  <div class="card">
+    <div class="card-header">
+      <span class="icon">🔍</span>
+      <h3>WHOIS</h3>
+    </div>
+    <div class="card-body">
+      {% if not profile.whois_data %}
+        <p class="empty">No domain provided.</p>
+      {% elif profile.whois_data.error is defined %}
+        <p class="empty">{{ profile.whois_data.error }}</p>
+      {% else %}
+        <table class="whois-table">
+          {% for key, value in profile.whois_data.items() %}
+          <tr>
+            <td>{{ key.replace('_', ' ') }}</td>
+            <td>
+              {% if value is iterable and value is not string %}
+                {{ value | join(', ') }}
+              {% else %}
+                {{ value }}
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </table>
+      {% endif %}
+    </div>
+  </div>
+
+  {% endif %}
+
+</div>
+
+<script>
+  document.getElementById('btn-clear').addEventListener('click', function () {
+    // Clear every input in the form
+    var form = document.querySelector('form');
+    form.querySelectorAll('input[type="text"], input[type="number"]').forEach(function (el) {
+      el.value = '';
+    });
+
+    // Remove results section (profile-meta + all cards + error alert)
+    ['profile-meta', 'alert'].forEach(function (cls) {
+      var el = document.querySelector('.' + cls);
+      if (el) el.remove();
+    });
+    document.querySelectorAll('.card').forEach(function (el) { el.remove(); });
+
+    // Focus the name field
+    document.getElementById('name').focus();
+  });
+</script>
+</body>
+</html>
