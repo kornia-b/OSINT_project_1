@@ -345,6 +345,92 @@
     }
     .whois-table td:last-child { color: var(--text); word-break: break-word; }
 
+    /* ── Indian News card ───────────────────── */
+    .india-list { list-style: none; display: flex; flex-direction: column; gap: 1rem; }
+    .india-item {
+      border-left: 3px solid #2a3a2a;
+      padding-left: 1rem;
+      transition: border-color 0.15s;
+    }
+    .india-item:hover { border-left-color: #f97316; }
+    .india-item .india-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.55rem;
+    }
+    .source-badge {
+      display: inline-block;
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 0.18rem 0.5rem;
+      border-radius: 4px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-top: 0.15rem;
+    }
+    .badge-TOI   { background: #3b1a08; color: #fb923c; border: 1px solid #7c2d12; }
+    .badge-NDTV  { background: #1a1a3b; color: #818cf8; border: 1px solid #3730a3; }
+    .badge-Hindu { background: #0a1f0a; color: #4ade80; border: 1px solid #14532d; }
+    .badge-HT    { background: #1f1a08; color: #fbbf24; border: 1px solid #78350f; }
+    .india-item a.title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+      line-height: 1.4;
+    }
+    .india-item a.title:hover { color: #f97316; }
+    .india-item .india-meta {
+      margin-top: 0.25rem;
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      padding-left: 0.05rem;
+    }
+    .india-item .india-error {
+      font-size: 0.78rem;
+      color: var(--warn-text);
+      font-style: italic;
+    }
+
+    /* ── Wikipedia card ─────────────────────── */
+    .wiki-layout { display: flex; gap: 1.2rem; align-items: flex-start; }
+    .wiki-thumb {
+      width: 90px;
+      min-width: 90px;
+      height: 90px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .wiki-body { flex: 1; }
+    .wiki-summary {
+      font-size: 0.88rem;
+      color: var(--text-dim);
+      line-height: 1.65;
+    }
+    .wiki-meta-row {
+      margin-top: 0.6rem;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+    .wiki-meta-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-right: 0.5rem;
+    }
+    .wiki-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+    .wiki-link:hover { text-decoration: underline; }
+
     /* ── Empty / error states ────────────────── */
     .empty {
       font-size: 0.86rem;
@@ -545,6 +631,89 @@
           </li>
           {% endfor %}
         </ul>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Indian News -->
+  <div class="card">
+    <div class="card-header">
+      <span class="icon">🇮🇳</span>
+      <h3>Indian News</h3>
+      {% set valid_india = profile.indian_news | selectattr('error', 'undefined') | list %}
+      <span class="count">{{ valid_india | length }} result(s)</span>
+    </div>
+    <div class="card-body">
+      {% if not profile.indian_news %}
+        <p class="empty">No Indian news results found for this entity.</p>
+      {% else %}
+        <ul class="india-list">
+          {% for article in profile.indian_news %}
+          <li class="india-item">
+            {% if article.error is defined %}
+              <div class="india-top">
+                <span class="source-badge badge-{{ article.badge }}">{{ article.badge }}</span>
+                <span class="india-error">{{ article.title }} — {{ article.error }}</span>
+              </div>
+            {% else %}
+              <div class="india-top">
+                <span class="source-badge badge-{{ article.badge }}">{{ article.badge }}</span>
+                <a class="title" href="{{ article.url }}" target="_blank" rel="noopener noreferrer">
+                  {{ article.title }}
+                </a>
+              </div>
+              <div class="india-meta">
+                {{ article.source }}
+                {% if article.published_at %}
+                  &middot; {{ article.published_at }}
+                {% endif %}
+              </div>
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Wikipedia -->
+  <div class="card">
+    <div class="card-header">
+      <span class="icon">📖</span>
+      <h3>Wikipedia</h3>
+    </div>
+    <div class="card-body">
+      {% set wp = profile.wikipedia_data %}
+      {% if not wp %}
+        <p class="empty">Wikipedia lookup unavailable.</p>
+      {% elif wp.error is defined %}
+        <p class="empty">Error: {{ wp.error }}</p>
+      {% elif not wp.found %}
+        <p class="empty">No Wikipedia page found for this entity.</p>
+      {% else %}
+        <div class="wiki-layout">
+          {% if wp.thumbnail %}
+          <img class="wiki-thumb" src="{{ wp.thumbnail }}" alt="Wikipedia thumbnail" />
+          {% endif %}
+          <div class="wiki-body">
+            {% if wp.summary %}
+            <p class="wiki-summary">{{ wp.summary }}</p>
+            {% endif %}
+            {% if wp.aliases %}
+            <div class="wiki-meta-row">
+              <span class="wiki-meta-label">Also known as</span>
+              <span>{{ wp.aliases | join(', ') }}</span>
+            </div>
+            {% endif %}
+            {% if wp.url %}
+            <div class="wiki-meta-row" style="margin-top:0.85rem">
+              <a href="{{ wp.url }}" target="_blank" rel="noopener noreferrer" class="wiki-link">
+                View full Wikipedia article ↗
+              </a>
+            </div>
+            {% endif %}
+          </div>
+        </div>
       {% endif %}
     </div>
   </div>

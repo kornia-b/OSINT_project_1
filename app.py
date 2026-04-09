@@ -29,6 +29,8 @@ def index():
         min_age = _int_or_none(form.get("min_age", ""))
         max_age = _int_or_none(form.get("max_age", ""))
 
+        debug = request.args.get("debug", "0") == "1"
+
         if not name:
             error = "Name is required."
         else:
@@ -40,6 +42,7 @@ def index():
                     exact_age=exact_age,
                     min_age=min_age,
                     max_age=max_age,
+                    debug=debug,
                 )
             except Exception as e:
                 error = f"Failed to build profile: {e}"

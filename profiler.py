@@ -3,6 +3,8 @@ from datetime import datetime, timezone
 from connectors.geo_connector import geocode_city
 from connectors.news_connector import fetch_news
 from connectors.whois_connector import lookup_domain
+from connectors.wikipedia_connector import lookup_wikipedia
+from connectors.indian_news_connector import fetch_indian_news
 
 
 def resolve_age_filter(exact_age, min_age, max_age) -> tuple[str, str]:
@@ -28,6 +30,7 @@ def build_profile(
     exact_age: int = None,
     min_age: int = None,
     max_age: int = None,
+    debug: bool = False,
 ) -> dict:
     age_filter_label, age_query_context = resolve_age_filter(exact_age, min_age, max_age)
 
@@ -37,12 +40,16 @@ def build_profile(
     location = geocode_city(city) if city else {"city": None, "lat": None, "lon": None}
     news_mentions = fetch_news(search_query)
     whois_data = lookup_domain(domain) if domain else {}
+    wikipedia_data = lookup_wikipedia(entity_name)
+    indian_news = fetch_indian_news(entity_name, debug=debug)
 
     return {
         "entity_name": entity_name,
         "location": location,
         "age_filter_applied": age_filter_label,
         "news_mentions": news_mentions,
+        "indian_news": indian_news,
         "whois_data": whois_data,
+        "wikipedia_data": wikipedia_data,
         "generated_at": datetime.now(timezone.utc).isoformat(),
     }
