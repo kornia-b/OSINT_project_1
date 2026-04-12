@@ -431,6 +431,27 @@
     }
     .wiki-link:hover { text-decoration: underline; }
 
+    /* ── Export PDF button ───────────────────── */
+    .btn-export-pdf {
+      background: #052e16;
+      border: 1px solid #166534;
+      border-radius: 7px;
+      color: #4ade80;
+      cursor: pointer;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      padding: 0.3rem 0.85rem;
+      text-decoration: none;
+      transition: background 0.15s, border-color 0.15s;
+      white-space: nowrap;
+    }
+    .btn-export-pdf:hover {
+      background: #14532d;
+      border-color: #4ade80;
+      color: #86efac;
+    }
+
     /* ── Empty / error states ────────────────── */
     .empty {
       font-size: 0.86rem;
@@ -599,7 +620,10 @@
 
   <div class="profile-meta">
     <h2>{{ profile.entity_name }}</h2>
-    <span class="ts">{{ profile.generated_at }}</span>
+    <div style="display:flex;align-items:center;gap:0.9rem;">
+      <span class="ts">{{ profile.generated_at }}</span>
+      <a href="/export-pdf" class="btn-export-pdf" target="_blank">⬇ Export PDF</a>
+    </div>
   </div>
 
   <!-- Location -->
