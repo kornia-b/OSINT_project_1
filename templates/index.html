@@ -438,7 +438,82 @@
       color: var(--text-muted);
     }
     .empty.warn { color: var(--yellow); font-style: normal; font-weight: 600; }
+
+    /* ── Map icon button ─────────────────────── */
+    .map-icon-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--accent);
+      cursor: pointer;
+      font-size: 1.1rem;
+      line-height: 1;
+      padding: 0.25rem 0.45rem;
+      transition: background 0.15s, border-color 0.15s;
+      vertical-align: middle;
+      margin-left: 0.6rem;
+    }
+    .map-icon-btn:hover {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+    }
+
+    /* ── Map modal ───────────────────────────── */
+    .map-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .map-modal {
+      background: #16163a;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      width: 520px;
+      max-width: calc(100vw - 2rem);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    }
+    .map-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1.1rem;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+    }
+    .map-modal-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.02em;
+    }
+    .map-close-btn {
+      background: none;
+      border: none;
+      color: #b45454;
+      cursor: pointer;
+      font-size: 1.1rem;
+      font-weight: 700;
+      line-height: 1;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .map-close-btn:hover {
+      background: #2a1a1a;
+      color: var(--danger);
+    }
+    #map-container {
+      width: 500px;
+      max-width: 100%;
+      height: 400px;
+    }
   </style>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 <body>
 <div class="container">
@@ -549,6 +624,13 @@
           <div class="loc-item">
             <label>Longitude</label>
             <span>{{ loc.lon }}</span>
+          </div>
+          <div class="loc-item" style="display:flex;align-items:flex-end;padding-bottom:0.1rem">
+            <button
+              class="map-icon-btn"
+              title="View on map"
+              onclick='openMapModal({{ loc.lat }}, {{ loc.lon }}, {{ loc.city | tojson }})'
+            >🗺️</button>
           </div>
           {% endif %}
         </div>
@@ -752,6 +834,18 @@
 
 </div>
 
+<!-- ── Map Modal ── -->
+<div class="map-modal-overlay" id="mapModalOverlay">
+  <div class="map-modal" id="mapModalBox">
+    <div class="map-modal-header">
+      <span class="map-modal-title" id="mapModalTitle">📍 Subject Location</span>
+      <button class="map-close-btn" id="mapCloseBtn" aria-label="Close map">✕</button>
+    </div>
+    <div id="map-container"></div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
   document.getElementById('btn-clear').addEventListener('click', function () {
     // Clear every input in the form
@@ -769,6 +863,76 @@
 
     // Focus the name field
     document.getElementById('name').focus();
+  });
+
+  // ── Map modal ────────────────────────────────────────────────────────────────
+  //
+  // FUTURE: This map will later accept multiple GPS coordinates to plot movement
+  // trails of a subject. The single marker below will be replaced with a
+  // L.polyline() path connecting each timestamped coordinate in sequence.
+  // Keep initMap() modular — pass an array of {lat, lon, label} objects when
+  // upgrading to the multi-point trail view.
+  //
+  var mapInstance = null;
+
+  // Custom red drop-pin icon (SVG, no extra dependency needed)
+  function makeRedIcon() {
+    return L.divIcon({
+      className: '',
+      html: '<svg width="24" height="36" viewBox="0 0 24 36" xmlns="http://www.w3.org/2000/svg">' +
+            '<path d="M12 0C5.373 0 0 5.373 0 12c0 9 12 24 12 24S24 21 24 12C24 5.373 18.627 0 12 0z" fill="#ef4444"/>' +
+            '<circle cx="12" cy="12" r="4" fill="white"/>' +
+            '</svg>',
+      iconSize:    [24, 36],
+      iconAnchor:  [12, 36],
+      popupAnchor: [0, -38]
+    });
+  }
+
+  // Initialise (or reinitialise) the Leaflet map for a single coordinate.
+  // Modular: swap this function body for multi-point trail rendering later.
+  function initMap(lat, lon, city) {
+    if (mapInstance) {
+      mapInstance.remove();
+      mapInstance = null;
+    }
+    mapInstance = L.map('map-container').setView([lat, lon], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19
+    }).addTo(mapInstance);
+
+    var marker = L.marker([lat, lon], { icon: makeRedIcon() }).addTo(mapInstance);
+    marker.bindPopup('Subject last known location: ' + city).openPopup();
+  }
+
+  function openMapModal(lat, lon, city) {
+    document.getElementById('mapModalTitle').textContent = '\uD83D\uDCCD ' + city + ' \u2014 Subject Location';
+    document.getElementById('mapModalOverlay').style.display = 'flex';
+    // Map must be initialised after the container is visible so Leaflet can
+    // measure its dimensions correctly.
+    initMap(lat, lon, city);
+  }
+
+  function closeMapModal() {
+    document.getElementById('mapModalOverlay').style.display = 'none';
+    if (mapInstance) {
+      mapInstance.remove();
+      mapInstance = null;
+    }
+  }
+
+  // Close on X button
+  document.getElementById('mapCloseBtn').addEventListener('click', closeMapModal);
+
+  // Close on overlay click (but NOT on the modal box itself)
+  document.getElementById('mapModalOverlay').addEventListener('click', function (e) {
+    if (e.target === this) closeMapModal();
+  });
+
+  // Close on Escape key
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeMapModal();
   });
 </script>
 </body>
