@@ -452,6 +452,86 @@
       color: #86efac;
     }
 
+    /* ── Entity Graph ────────────────────────── */
+    @keyframes egBorderPulse {
+      0%, 100% { box-shadow: 0 0 28px #00f5ff0d, inset 0 0 28px #00000099; border-color: #00f5ff22; }
+      50%       { box-shadow: 0 0 48px #00f5ff22, inset 0 0 28px #00000099; border-color: #00f5ff55; }
+    }
+    @keyframes egScanline {
+      0%   { top: -15%; }
+      100% { top: 110%; }
+    }
+    #entity-graph {
+      width: 100%;
+      height: 500px;
+      background: #000008;
+      border-radius: 8px;
+      border: 1px solid #00f5ff22;
+      box-shadow: 0 0 30px #00f5ff11, inset 0 0 30px #00000088;
+      position: relative;
+      animation: egBorderPulse 3s ease-in-out infinite;
+      overflow: hidden;
+    }
+    /* Scanline overlay — sits above canvas, no pointer interaction */
+    #entity-graph::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0;
+      height: 14%;
+      background: linear-gradient(to bottom,
+        transparent 0%,
+        rgba(0, 245, 255, 0.025) 50%,
+        transparent 100%);
+      animation: egScanline 7s linear infinite;
+      pointer-events: none;
+      z-index: 2;
+    }
+    .graph-toolbar {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.65rem;
+    }
+    .graph-toolbar button {
+      background: transparent;
+      border: 1px solid #00f5ff44;
+      border-radius: 4px;
+      color: #00f5ff;
+      cursor: pointer;
+      font-family: "Courier New", monospace;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      padding: 0.3rem 0.85rem;
+      transition: border-color 0.2s, color 0.2s, box-shadow 0.2s;
+    }
+    .graph-toolbar button:hover {
+      border-color: #00f5ff;
+      color: #ffffff;
+      box-shadow: 0 0 10px #00f5ff44;
+    }
+    .graph-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+      margin-top: 0.65rem;
+      justify-content: flex-end;
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 5px;
+      padding: 0.45rem 0.75rem;
+    }
+    .graph-legend-item {
+      font-family: "Courier New", monospace;
+      font-size: 0.68rem;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .legend-glyph {
+      font-size: 0.8rem;
+      line-height: 1;
+    }
+
     /* ── Empty / error states ────────────────── */
     .empty {
       font-size: 0.86rem;
@@ -626,6 +706,31 @@
     </div>
   </div>
 
+  <!-- Profile data for graph (server-rendered JSON) -->
+  <script>var PROFILE_DATA = {{ profile | tojson }};</script>
+
+  <!-- Entity Graph -->
+  <div class="card" style="border-color:#00f5ff1a;background:#000810;">
+    <div class="card-header" style="background:#00060f;border-bottom:1px solid #00f5ff1a;">
+      <h3 style="font-family:'Courier New',monospace;letter-spacing:3px;color:#00f5ff;font-size:0.7rem;text-transform:uppercase;">◈ ENTITY LINK ANALYSIS</h3>
+    </div>
+    <div class="card-body" style="background:#000810;">
+      <div class="graph-toolbar">
+        <button onclick="resetGraphLayout()">◈ Reset Layout</button>
+        <button onclick="saveGraphImage()">◈ Save Image</button>
+      </div>
+      <div id="entity-graph"></div>
+      <div class="graph-legend">
+        <span class="graph-legend-item"><span class="legend-glyph" style="color:#00f5ff">⬡</span><span style="color:#00f5ff99">Subject</span></span>
+        <span class="graph-legend-item"><span class="legend-glyph" style="color:#4fc3f7">⬡</span><span style="color:#4fc3f799">Location</span></span>
+        <span class="graph-legend-item"><span class="legend-glyph" style="color:#b39ddb">⬡</span><span style="color:#b39ddb99">Domain</span></span>
+        <span class="graph-legend-item"><span class="legend-glyph" style="color:#69f0ae">⬡</span><span style="color:#69f0ae99">News</span></span>
+        <span class="graph-legend-item"><span class="legend-glyph" style="color:#00e676">⬡</span><span style="color:#00e67699">India News</span></span>
+        <span class="graph-legend-item"><span class="legend-glyph" style="color:#fff176">⬡</span><span style="color:#fff17699">Organisation</span></span>
+      </div>
+    </div>
+  </div>
+
   <!-- Location -->
   <div class="card">
     <div class="card-header">
@@ -716,20 +821,26 @@
         <ul class="news-list">
           {% for article in profile.news_mentions %}
           <li class="news-item">
+            {% if article.url %}
             <a class="title" href="{{ article.url }}" target="_blank" rel="noopener noreferrer">
               {{ article.title }}
             </a>
+            {% else %}
+            <span class="title" style="color:var(--text)">{{ article.title }}</span>
+            {% endif %}
             <div class="meta">
               <span>{{ article.source or "Unknown source" }}</span>
               {% if article.published_at %}
               <span class="sep">·</span>
               <span>{{ article.published_at[:10] }}</span>
               {% endif %}
+              {% if article.url %}
               <span class="sep">·</span>
               <a href="{{ article.url }}" target="_blank" rel="noopener noreferrer"
                  style="color:var(--accent);text-decoration:none;font-size:0.72rem;">
                 View article ↗
               </a>
+              {% endif %}
             </div>
             {% if article.description %}
             <div class="desc">{{ article.description }}</div>
@@ -764,9 +875,13 @@
             {% else %}
               <div class="india-top">
                 <span class="source-badge badge-{{ article.badge }}">{{ article.badge }}</span>
+                {% if article.url %}
                 <a class="title" href="{{ article.url }}" target="_blank" rel="noopener noreferrer">
                   {{ article.title }}
                 </a>
+                {% else %}
+                <span class="title" style="color:var(--text)">{{ article.title }}</span>
+                {% endif %}
               </div>
               <div class="india-meta">
                 {{ article.source }}
@@ -869,6 +984,7 @@
   </div>
 </div>
 
+<script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
   document.getElementById('btn-clear').addEventListener('click', function () {
@@ -888,6 +1004,542 @@
     // Focus the name field
     document.getElementById('name').focus();
   });
+
+  // ── Entity Graph ─────────────────────────────────────────────────────────────
+  //
+  // FUTURE: Nodes will later include court cases, company directorships (MCA21),
+  // associates, and family connections.
+  // FUTURE: Edges will carry timestamps so the graph can be filtered by date
+  // range to show movement and association timelines.
+  // FUTURE: Graph will support multiple subjects loaded simultaneously for
+  // network / gang analysis — buildEntityGraph() will accept an array of
+  // profile objects and merge their node/edge sets.
+  //
+  var entityNetwork = null;
+  var entityNodes   = null;
+  var entityEdges   = null;
+  var _pulseRaf     = null;
+
+  // Palette — unified hexagon theme
+  var EG = {
+    subject:    { bg: '#000d1a',  border: '#00f5ff', glow: '#00f5ff', hlBg: '#001a33',  hlBorder: '#00f5ff' },
+    location:   { bg: '#001a2e',  border: '#4fc3f7', glow: '#4fc3f7', hlBg: '#002a4a',  hlBorder: '#4fc3f7' },
+    domain:     { bg: '#1a0033',  border: '#b39ddb', glow: '#b39ddb', hlBg: '#2a0055',  hlBorder: '#ce93d8' },
+    wiki:       { bg: '#1a0d00',  border: '#ffab40', glow: '#ffab40', hlBg: '#2a1500',  hlBorder: '#ffcc02' },
+    news:       { bg: '#001a0d',  border: '#69f0ae', glow: '#69f0ae', hlBg: '#002a15',  hlBorder: '#b9f6ca' },
+    india:      { bg: '#001a0d',  border: '#00e676', glow: '#00e676', hlBg: '#002a15',  hlBorder: '#69f0ae' },
+    org:        { bg: '#1a1a00',  border: '#fff176', glow: '#fff176', hlBg: '#2a2a00',  hlBorder: '#ffff8d' },
+    subDomain:  { bg: '#0d0d1a',  border: '#7986cb', glow: '#7986cb', hlBg: '#1a1a33',  hlBorder: '#9fa8da' }
+  };
+
+  function nodeColor(p) {
+    return { background: p.bg, border: p.border,
+             highlight: { background: p.hlBg || p.bg, border: p.hlBorder || p.border } };
+  }
+
+  // All node labels: white, bold, 10px, monospace, centered, stroke for legibility
+  function nodeFont(size) {
+    return { color: '#ffffff', size: size || 10, face: 'monospace', bold: true,
+             multi: false, vadjust: 0, align: 'center',
+             strokeWidth: 3, strokeColor: '#000000' };
+  }
+
+  function nodeGlow(color, size) {
+    return { enabled: true, color: color, size: size || 20, x: 0, y: 0 };
+  }
+
+  // ── Article popup helpers (module-level so close btn + Escape can call them) ──
+
+  function hidePopup() {
+    var p = document.getElementById('node-article-popup');
+    if (p) p.style.display = 'none';
+  }
+
+  function showArticlePopup(node, clientX, clientY) {
+    var popup   = document.getElementById('node-article-popup');
+    var nameDiv = document.getElementById('popup-source-name');
+    var listDiv = document.getElementById('popup-articles-list');
+    if (!popup || !nameDiv || !listDiv) return;
+
+    nameDiv.textContent = node._srcFull || node.label || '';
+    listDiv.innerHTML = '';
+
+    (node.articles || []).forEach(function(article, idx) {
+      var item = document.createElement('div');
+      item.style.cssText = 'padding:8px 0;border-bottom:1px solid #ffffff11;cursor:pointer;font-family:monospace;';
+
+      var badge = document.createElement('div');
+      badge.style.cssText = 'color:#69f0ae;font-size:9px;margin-bottom:3px;letter-spacing:1px;';
+      badge.textContent = 'ARTICLE ' + (idx + 1);
+
+      var title = document.createElement('div');
+      title.style.cssText = 'color:#ffffff;font-size:11px;line-height:1.4;';
+      title.textContent = article.title || article.url || '(no title)';
+
+      if (article.url) {
+        var url = article.url;
+        item.onclick = function(e) {
+          e.stopPropagation();
+          e.preventDefault();
+          window.open(url, '_blank');
+          hidePopup();
+        };
+        item.onmouseover = function() { title.style.color = '#00e5ff'; };
+        item.onmouseout  = function() { title.style.color = '#ffffff'; };
+      } else {
+        title.style.color = '#9ca3af';
+      }
+
+      item.appendChild(badge);
+      item.appendChild(title);
+      listDiv.appendChild(item);
+    });
+
+    popup.style.left    = (clientX + 15) + 'px';
+    popup.style.top     = (clientY - 20) + 'px';
+    popup.style.display = 'block';
+  }
+
+  // Split a string into 1 or 2 lines to fit inside a hexagon (max 10 chars/line).
+  // Tries to break at a space near the midpoint; falls back to hard truncation.
+  function hexLabel(s) {
+    if (!s) return '';
+    s = String(s);
+    if (s.length <= 10) return s;
+    var mid = Math.floor(s.length / 2);
+    var splitAt = -1;
+    for (var d = 0; d <= mid; d++) {
+      if (mid - d > 0 && s[mid - d] === ' ') { splitAt = mid - d; break; }
+      if (mid + d < s.length - 1 && s[mid + d] === ' ') { splitAt = mid + d; break; }
+    }
+    if (splitAt > 0) {
+      var l1 = s.slice(0, splitAt);
+      var l2 = s.slice(splitAt + 1);
+      if (l1.length > 10) l1 = l1.slice(0, 9) + '\u2026';
+      if (l2.length > 10) l2 = l2.slice(0, 9) + '\u2026';
+      return l1 + '\n' + l2;
+    }
+    return s.slice(0, 9) + '\u2026';
+  }
+
+  // Extract repeated capitalized phrases from a Wikipedia summary.
+  function extractWikiOrgs(summary) {
+    var stop = new Set([
+      'The','He','She','His','Her','They','In','At','On','As','By','With',
+      'From','To','Of','And','But','Or','An','Is','Was','Were','Are','Has',
+      'Have','Had','Born','Also','After','During','Under','Over','New',
+      'This','That','These','Those','Its','It','Be','Been','About','Who'
+    ]);
+    var matches = summary.match(/\b[A-Z][a-zA-Z]{2,}(?:\s+[A-Z][a-zA-Z]{2,}){0,2}\b/g) || [];
+    var freq = {};
+    matches.forEach(function(m) {
+      if (!stop.has(m.split(' ')[0])) freq[m] = (freq[m] || 0) + 1;
+    });
+    return Object.keys(freq)
+      .filter(function(k) { return freq[k] >= 2 && k.length > 4; })
+      .sort(function(a, b) { return freq[b] - freq[a]; })
+      .slice(0, 5);
+  }
+
+  // Edges — no labels, clean arrows, solid cyan
+  function makeEdge(from, to) {
+    return {
+      from: from, to: to,
+      label: '',
+      font: { size: 0 },
+      color: { color: '#00e5ff', opacity: 0.7, highlight: '#00f5ff' },
+      dashes: false,
+      width: 1.5,
+      smooth: { enabled: false },
+      chosen: false,
+      arrows: { to: { enabled: true, scaleFactor: 0.4, type: 'arrow' } },
+      selfReference: { size: 0 },
+      endPointOffset: { from: 0, to: 0 }
+    };
+  }
+
+  // Base properties applied to every branch node
+  var NODE_BASE = {
+    borderWidth: 2,
+    borderWidthSelected: 3,
+    shapeProperties: { borderDashes: false },
+    labelHighlightBold: false,
+    widthConstraint: { minimum: 60, maximum: 80 },
+    margin: 10,
+    chosen: false,
+    physics: true
+  };
+
+  // Pre-position branch nodes evenly around a circle of radius R
+  function _spokePositions(branchNodes) {
+    var R = 350, n = branchNodes.length;
+    branchNodes.forEach(function(node, idx) {
+      var angle = (idx / n) * 2 * Math.PI;
+      node.x = Math.cos(angle) * R;
+      node.y = Math.sin(angle) * R;
+    });
+  }
+
+  function buildEntityGraph() {
+    var p  = PROFILE_DATA;
+    var wp = p.wikipedia_data;
+    // Build ALL branch nodes first so we can count them for the subject shape
+    var branches = [], edges = [];
+
+    // Location — hexagon, cyan-blue
+    var loc = p.location;
+    if (loc && loc.city) {
+      branches.push(Object.assign({}, NODE_BASE, {
+        id: 'location', label: hexLabel(loc.city),
+        color: nodeColor(EG.location), size: 55, shape: 'hexagon',
+        font: nodeFont(),
+        shadow: nodeGlow(EG.location.glow, 20),
+        title: '📍 ' + loc.city + (loc.lat ? '\nLat: ' + loc.lat + '  Lon: ' + loc.lon + '\nClick to open Google Maps' : ''),
+        type: 'location', _city: loc.city,
+        lat: loc.lat || null, lon: loc.lon || null
+      }));
+      edges.push(makeEdge('subject', 'location'));
+    }
+
+    // Domain / WHOIS — hexagon, violet
+    var wd = p.whois_data;
+    if (wd && !wd.error && Object.keys(wd).length > 0) {
+      var domainRaw  = wd.domain_name || 'Domain';
+      var domainFull = (Array.isArray(domainRaw) ? domainRaw[0] : String(domainRaw))
+                       .toLowerCase().split('\n')[0];
+      branches.push(Object.assign({}, NODE_BASE, {
+        id: 'domain', label: hexLabel(domainFull),
+        color: nodeColor(EG.domain), size: 55, shape: 'hexagon',
+        font: nodeFont(), shadow: nodeGlow(EG.domain.glow, 20),
+        title: '🌐 ' + domainFull + (wd.registrar ? '\nRegistrar: ' + wd.registrar : '') + '\nClick to look up WHOIS',
+        type: 'domain', domainFull: domainFull,
+        _registrar: wd.registrar || null, _country: wd.country || null, _org: wd.org || null
+      }));
+      edges.push(makeEdge('subject', 'domain'));
+
+      if (wd.registrar) {
+        branches.push(Object.assign({}, NODE_BASE, {
+          id: 'registrar', label: hexLabel(String(wd.registrar)),
+          color: nodeColor(EG.subDomain), size: 45, shape: 'hexagon',
+          font: nodeFont(), shadow: nodeGlow(EG.subDomain.glow, 15),
+          title: 'Registrar: ' + wd.registrar
+        }));
+        edges.push(makeEdge('domain', 'registrar'));
+      }
+      if (wd.org && String(wd.org).toUpperCase().indexOf('REDACTED') === -1) {
+        branches.push(Object.assign({}, NODE_BASE, {
+          id: 'domain_org', label: hexLabel(String(wd.org)),
+          color: nodeColor(EG.subDomain), size: 45, shape: 'hexagon',
+          font: nodeFont(), shadow: nodeGlow(EG.subDomain.glow, 15),
+          title: 'Organisation: ' + wd.org
+        }));
+        edges.push(makeEdge('domain', 'domain_org'));
+      }
+      if (wd.country) {
+        branches.push(Object.assign({}, NODE_BASE, {
+          id: 'domain_country', label: hexLabel(String(wd.country)),
+          color: nodeColor(EG.subDomain), size: 45, shape: 'hexagon',
+          font: nodeFont(), shadow: nodeGlow(EG.subDomain.glow, 15),
+          title: 'Registered in: ' + wd.country
+        }));
+        edges.push(makeEdge('domain', 'domain_country'));
+      }
+    }
+
+    // Global news sources — hexagon, green
+    var newsArticlesBySource = {};
+    (p.news_mentions || []).forEach(function(a) {
+      if (a.source && !a.error) {
+        if (!newsArticlesBySource[a.source]) newsArticlesBySource[a.source] = [];
+        newsArticlesBySource[a.source].push({ title: a.title || '', url: a.url || '' });
+      }
+    });
+    Object.keys(newsArticlesBySource).slice(0, 5).forEach(function(src, i) {
+      var arts = newsArticlesBySource[src];
+      branches.push(Object.assign({}, NODE_BASE, {
+        id: 'news_' + i, label: hexLabel(src),
+        color: nodeColor(EG.news), size: 52, shape: 'hexagon',
+        font: nodeFont(), shadow: nodeGlow(EG.news.glow, 18),
+        title: src + '\nArticles: ' + arts.length,
+        type: 'news', _srcFull: src, _count: arts.length, articles: arts
+      }));
+      edges.push(makeEdge('subject', 'news_' + i));
+    });
+
+    // Indian news sources — hexagon, bright green (distinct from global)
+    var indiaArticlesBySource = {};
+    (p.indian_news || []).forEach(function(a) {
+      if (a.source && !a.error) {
+        if (!indiaArticlesBySource[a.source]) indiaArticlesBySource[a.source] = [];
+        indiaArticlesBySource[a.source].push({ title: a.title || '', url: a.url || '' });
+      }
+    });
+    Object.keys(indiaArticlesBySource).slice(0, 5).forEach(function(src, i) {
+      var arts = indiaArticlesBySource[src];
+      branches.push(Object.assign({}, NODE_BASE, {
+        id: 'india_' + i, label: hexLabel(src),
+        color: nodeColor(EG.india), size: 52, shape: 'hexagon',
+        font: nodeFont(), shadow: nodeGlow(EG.india.glow, 18),
+        title: src + ' (Indian)\nArticles: ' + arts.length,
+        type: 'india', _srcFull: src, _count: arts.length, articles: arts
+      }));
+      edges.push(makeEdge('subject', 'india_' + i));
+    });
+
+    // Pre-position all branches in a perfect spoke circle
+    _spokePositions(branches);
+
+    // Subject node: circularImage when thumbnail available, hexagon otherwise
+    var thumbnail  = wp && wp.thumbnail ? wp.thumbnail : null;
+    var subjectNode;
+    if (thumbnail) {
+      subjectNode = Object.assign({}, NODE_BASE, {
+        id: 'subject', label: '',
+        image: thumbnail, shape: 'circularImage', size: 75,
+        borderWidth: 3,
+        widthConstraint: false,
+        color: { background: '#000d1a', border: '#00f5ff',
+                 highlight: { background: '#001a33', border: '#00f5ff' } },
+        font: nodeFont(),
+        shadow: { enabled: true, color: '#00f5ff', size: 20, x: 0, y: 0 },
+        x: 0, y: 0,
+        title: '👤 ' + p.entity_name + '\nClick to search Wikipedia',
+        type: 'subject'
+      });
+    } else {
+      subjectNode = Object.assign({}, NODE_BASE, {
+        id: 'subject', label: hexLabel(p.entity_name),
+        shape: 'hexagon', size: 80,
+        borderWidth: 3,
+        color: { background: '#000d1a', border: '#00f5ff',
+                 highlight: { background: '#001a33', border: '#00f5ff' } },
+        font: { color: '#ffffff', size: 12, face: 'monospace', bold: true,
+                vadjust: 0, align: 'center', strokeWidth: 3, strokeColor: '#000000' },
+        shadow: { enabled: true, color: '#00f5ff', size: 20, x: 0, y: 0 },
+        x: 0, y: 0,
+        title: '👤 ' + p.entity_name + '\nClick to search Wikipedia',
+        type: 'subject'
+      });
+    }
+
+    return { nodes: [subjectNode].concat(branches), edges: edges };
+  }
+
+  // Subject node breathes: size 76–86, glow 20–42, 2-second sine cycle
+  var _pulseT0 = null;
+  function _animateSubjectPulse(ts) {
+    if (!entityNodes) return;
+    if (!_pulseT0) _pulseT0 = ts;
+    var s = 0.5 - 0.5 * Math.cos(((ts - _pulseT0) % 2000) / 2000 * 2 * Math.PI);
+    try {
+      entityNodes.update({
+        id: 'subject',
+        size: 76 + s * 10,
+        borderWidth: 3 + s * 2,
+        shadow: { enabled: true, color: '#00f5ff', size: 20 + s * 22, x: 0, y: 0 }
+      });
+    } catch (e) {}
+    _pulseRaf = requestAnimationFrame(_animateSubjectPulse);
+  }
+
+  // Fix 4: stop physics globally after stabilization — nodes remain freely draggable
+  // (individual fixed: true would block dragging, so we never set it)
+
+  function initEntityGraph() {
+    var container = document.getElementById('entity-graph');
+    if (!container || typeof PROFILE_DATA === 'undefined') return;
+
+    var gd = buildEntityGraph();
+    entityNodes = new vis.DataSet(gd.nodes);
+    entityEdges = new vis.DataSet(gd.edges);
+
+    var options = {
+      nodes: { borderWidth: 2, borderWidthSelected: 3, chosen: false },
+      edges: {
+        smooth: { enabled: false },
+        arrows: { to: { enabled: true, scaleFactor: 0.4, type: 'arrow' } },
+        chosen: false,
+        selfReference: { size: 0 },
+        endPointOffset: { from: 0, to: 0 }
+      },
+      physics: {
+        enabled: true,
+        solver: 'forceAtlas2Based',
+        forceAtlas2Based: {
+          gravitationalConstant: -15000,
+          centralGravity: 0.3,
+          springLength: 300,
+          springConstant: 0.04,
+          damping: 0.2,
+          avoidOverlap: 1
+        },
+        stabilization: { iterations: 300, updateInterval: 25 },
+        adaptiveTimestep: true
+      },
+      interaction: { hover: true, tooltipDelay: 80, zoomView: true, dragNodes: true }
+    };
+
+    entityNetwork = new vis.Network(container, { nodes: entityNodes, edges: entityEdges }, options);
+
+    // ── Click handler ────────────────────────────────────────────────────────
+    var _tooltip = document.getElementById('graph-tooltip');
+
+    entityNetwork.on('click', function(params) {
+      if (params.nodes.length === 0) {
+        hidePopup();
+        return;
+      }
+      var node = entityNodes.get(params.nodes[0]);
+      if (!node) return;
+      hidePopup();
+
+      if ((node.type === 'news' || node.type === 'india') && node.articles) {
+        // Single article → open directly; multiple → show popup
+        if (node.articles.length === 1 && node.articles[0].url) {
+          var url0 = node.articles[0].url;
+          setTimeout(function() { window.open(url0, '_blank'); }, 10);
+        } else {
+          var ev = params.event.srcEvent || params.event;
+          showArticlePopup(node, ev.clientX, ev.clientY);
+        }
+      } else if (node.type === 'location' && node.lat && node.lon) {
+        var mapsUrl = 'https://www.google.com/maps?q=' + node.lat + ',' + node.lon;
+        setTimeout(function() { window.open(mapsUrl, '_blank'); }, 10);
+      } else if (node.type === 'subject') {
+        var wikiUrl = 'https://en.wikipedia.org/wiki/Special:Search?search=' + encodeURIComponent(PROFILE_DATA.entity_name);
+        setTimeout(function() { window.open(wikiUrl, '_blank'); }, 10);
+      } else if (node.type === 'domain' && node.domainFull) {
+        var whoisUrl = 'https://who.is/whois/' + node.domainFull;
+        setTimeout(function() { window.open(whoisUrl, '_blank'); }, 10);
+      }
+    });
+
+    // ── Hover tooltip — custom floating div (Fixes 3-7) ─────────────────────
+    entityNetwork.on('hoverNode', function(params) {
+      if (!_tooltip) return;
+      var node = entityNodes.get(params.node);
+      if (!node) return;
+      var html = '';
+      if (node.type === 'news' || node.type === 'india') {
+        html = '<strong style="color:#69f0ae">' + node._srcFull + '</strong>';
+        html += ' <span style="color:#546e7a">(' + node._count + ' article' + (node._count > 1 ? 's' : '') + ')</span><br><br>';
+        (node.articles || []).slice(0, 3).forEach(function(a) {
+          html += '<span style="color:#b9f6ca">• ' + (a.title.length > 50 ? a.title.slice(0, 49) + '…' : a.title) + '</span><br>';
+        });
+        if (node._count > 3) html += '<span style="color:#546e7a;font-size:10px">… and ' + (node._count - 3) + ' more</span><br>';
+        html += '<br><span style="color:#69f0ae;opacity:0.7">Click for article list ↗</span>';
+      } else if (node.type === 'location') {
+        html = '<strong style="color:#4fc3f7">📍 ' + node._city + '</strong><br>';
+        if (node.lat) {
+          html += '<span style="color:#80d8ff">Lat: ' + node.lat + '</span><br>';
+          html += '<span style="color:#80d8ff">Lon: ' + node.lon + '</span><br>';
+          html += '<br><span style="color:#4fc3f7;opacity:0.7">Click to open Google Maps ↗</span>';
+        }
+      } else if (node.type === 'subject') {
+        html = '<strong style="color:#00f5ff">👤 ' + PROFILE_DATA.entity_name + '</strong><br>';
+        html += '<span style="color:#546e7a">Generated: ' + PROFILE_DATA.generated_at.slice(0, 19).replace('T', ' ') + ' UTC</span><br>';
+        html += '<br><span style="color:#00f5ff;opacity:0.7">Click to search Wikipedia ↗</span>';
+      } else if (node.type === 'domain') {
+        html = '<strong style="color:#b39ddb">🌐 ' + (node.domainFull || 'Domain') + '</strong><br>';
+        if (node._registrar) html += '<span style="color:#d1c4e9">Registrar: ' + node._registrar + '</span><br>';
+        if (node._country)   html += '<span style="color:#d1c4e9">Country: ' + node._country + '</span><br>';
+        if (node._org)       html += '<span style="color:#d1c4e9">Org: ' + node._org + '</span><br>';
+        html += '<br><span style="color:#b39ddb;opacity:0.7">Click to look up WHOIS ↗</span>';
+      }
+      if (html && _tooltip) {
+        _tooltip.innerHTML = html;
+        _tooltip.style.display = 'block';
+      }
+    });
+
+    entityNetwork.on('blurNode', function() {
+      if (_tooltip) _tooltip.style.display = 'none';
+    });
+
+    container.addEventListener('mousemove', function(e) {
+      if (_tooltip && _tooltip.style.display === 'block') {
+        _tooltip.style.left = (e.clientX + 15) + 'px';
+        _tooltip.style.top  = (e.clientY + 15) + 'px';
+      }
+    });
+
+    // Draw holographic background — grid + radial glow — before each frame
+    entityNetwork.on('beforeDrawing', function(ctx) {
+      var w = ctx.canvas.width, h = ctx.canvas.height;
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.fillStyle = '#000008';
+      ctx.fillRect(0, 0, w, h);
+      var gs = 45;
+      ctx.strokeStyle = '#0a0a2a';
+      ctx.lineWidth = 0.7;
+      ctx.beginPath();
+      for (var x = 0; x <= w; x += gs) { ctx.moveTo(x + 0.5, 0); ctx.lineTo(x + 0.5, h); }
+      for (var y = 0; y <= h; y += gs) { ctx.moveTo(0, y + 0.5); ctx.lineTo(w, y + 0.5); }
+      ctx.stroke();
+      var cx = w / 2, cy = h / 2, r = Math.min(w, h) * 0.42;
+      var rg = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      rg.addColorStop(0, 'rgba(0, 18, 64, 0.38)');
+      rg.addColorStop(1, 'rgba(0, 0, 8, 0)');
+      ctx.fillStyle = rg;
+      ctx.fillRect(0, 0, w, h);
+      ctx.restore();
+    });
+
+    // After stabilisation: turn physics off globally (nodes stay put but remain draggable),
+    // stagger-reveal, start subject pulse
+    entityNetwork.once('stabilizationIterationsDone', function() {
+      entityNetwork.setOptions({ physics: { enabled: false } });  // Fix 4: physics off, no fixed
+
+      var ids = entityNodes.getIds();
+      ids.forEach(function(id) { entityNodes.update({ id: id, hidden: true }); });
+      ids.forEach(function(id, idx) {
+        setTimeout(function() { entityNodes.update({ id: id, hidden: false }); }, idx * 90);
+      });
+      setTimeout(function() {
+        _pulseT0 = null;
+        _pulseRaf = requestAnimationFrame(_animateSubjectPulse);
+      }, ids.length * 90 + 150);
+    });
+  }
+
+  function resetGraphLayout() {
+    if (!entityNetwork) return;
+    if (_pulseRaf) { cancelAnimationFrame(_pulseRaf); _pulseRaf = null; }
+
+    // Reset subject to stable base
+    entityNodes.update({ id: 'subject', size: 80, borderWidth: 3,
+                         shadow: nodeGlow(EG.subject.glow, 20) });
+
+    // Recalculate spoke positions for all branches, re-enable physics to re-stabilize
+    var R = 350;
+    var branchIds = entityNodes.getIds().filter(function(id) { return id !== 'subject'; });
+    branchIds.forEach(function(id, idx) {
+      var angle = (idx / branchIds.length) * 2 * Math.PI;
+      entityNodes.update({ id: id, x: Math.cos(angle) * R, y: Math.sin(angle) * R });
+    });
+
+    entityNetwork.setOptions({ physics: { enabled: true } });
+    entityNetwork.stabilize(300);
+    entityNetwork.once('stabilizationIterationsDone', function() {
+      entityNetwork.setOptions({ physics: { enabled: false } });  // Fix 4: no fixed, still draggable
+      _pulseT0 = null;
+      _pulseRaf = requestAnimationFrame(_animateSubjectPulse);
+    });
+  }
+
+  function saveGraphImage() {
+    if (!entityNetwork) return;
+    var canvas = document.querySelector('#entity-graph canvas');
+    if (!canvas) return;
+    var link = document.createElement('a');
+    link.download = 'entity-graph.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }
+
+  // Initialise graph if profile data was rendered by the server
+  if (typeof PROFILE_DATA !== 'undefined') initEntityGraph();
 
   // ── Map modal ────────────────────────────────────────────────────────────────
   //
@@ -956,8 +1608,76 @@
 
   // Close on Escape key
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') closeMapModal();
+    if (e.key === 'Escape') {
+      closeMapModal();
+      hidePopup();
+    }
   });
+
+  // Article popup close button
+  var _popupCloseBtn = document.getElementById('popup-close');
+  if (_popupCloseBtn) {
+    _popupCloseBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      hidePopup();
+    });
+  }
 </script>
+
+<!-- Article popup — fixed floating div, shown on news/india node click -->
+<div id="node-article-popup" style="
+  display: none;
+  position: fixed;
+  background: #0d0d1a;
+  border: 1px solid #00e5ff55;
+  border-radius: 8px;
+  padding: 12px 14px;
+  z-index: 99999;
+  max-width: 320px;
+  min-width: 200px;
+  font-family: monospace;
+  font-size: 11px;
+  box-shadow: 0 0 20px #00e5ff22;
+  pointer-events: auto;
+">
+  <div id="popup-source-name" style="
+    color: #00e5ff;
+    font-size: 11px;
+    font-weight: bold;
+    border-bottom: 1px solid #00e5ff33;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  "></div>
+  <div id="popup-articles-list"></div>
+  <div style="margin-top:10px;text-align:right;">
+    <span id="popup-close" style="
+      color: #546e7a;
+      font-size: 10px;
+      cursor: pointer;
+      letter-spacing: 1px;
+    ">[ CLOSE ]</span>
+  </div>
+</div>
+
+<!-- Graph tooltip — fixed floating div, controlled by hoverNode/blurNode events -->
+<div id="graph-tooltip" style="
+  display: none;
+  position: fixed;
+  background: #0d0d1a;
+  border: 1px solid #00e5ff55;
+  color: #00e5ff;
+  font-family: monospace;
+  font-size: 11px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  max-width: 280px;
+  z-index: 9999;
+  pointer-events: none;
+  box-shadow: 0 0 15px #00e5ff22;
+  line-height: 1.6;
+"></div>
+
 </body>
 </html>
