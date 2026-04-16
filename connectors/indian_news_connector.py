@@ -85,10 +85,11 @@ def _fetch_rss(entity_name: str, debug: bool) -> tuple[list[dict], list[str]]:
                 description = (getattr(entry, "summary", "") or getattr(entry, "description", "") or "")
                 if debug:
                     print(f"[indian_news] Checking: {title[:60]}", file=sys.stderr)
-                match = any(
-                    part.lower() in (title + " " + description).lower()
-                    for part in name_parts
-                )
+                haystack = (title + " " + description).lower()
+                if len(name_parts) >= 2:
+                    match = all(part.lower() in haystack for part in name_parts)
+                else:
+                    match = any(part.lower() in haystack for part in name_parts)
                 if not match:
                     continue
                 if debug:

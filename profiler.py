@@ -5,6 +5,7 @@ from connectors.news_connector import fetch_news
 from connectors.whois_connector import lookup_domain
 from connectors.wikipedia_connector import lookup_wikipedia
 from connectors.indian_news_connector import fetch_indian_news
+from connectors.company_connector import fetch_company_data
 
 
 def resolve_age_filter(exact_age, min_age, max_age) -> tuple[str, str]:
@@ -42,6 +43,8 @@ def build_profile(
     whois_data = lookup_domain(domain) if domain else {}
     wikipedia_data = lookup_wikipedia(entity_name)
     indian_news = fetch_indian_news(entity_name, debug=debug)
+    wiki_summary = wikipedia_data.get("summary", "") if isinstance(wikipedia_data, dict) else ""
+    company_data = fetch_company_data(entity_name, wiki_summary)
 
     return {
         "entity_name": entity_name,
@@ -51,5 +54,6 @@ def build_profile(
         "indian_news": indian_news,
         "whois_data": whois_data,
         "wikipedia_data": wikipedia_data,
+        "company_data": company_data,
         "generated_at": datetime.now(timezone.utc).isoformat(),
     }

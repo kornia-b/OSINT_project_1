@@ -431,6 +431,76 @@
     }
     .wiki-link:hover { text-decoration: underline; }
 
+    /* ── Company Links card ─────────────────── */
+    .company-section-label {
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin: 1rem 0 0.65rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .company-section-label:first-child { margin-top: 0; }
+
+    .company-list { display: flex; flex-direction: column; gap: 0.9rem; }
+    .company-item {
+      border-left: 3px solid #2a2a1a;
+      padding-left: 1rem;
+      transition: border-color 0.15s;
+    }
+    .company-item:hover { border-left-color: #fbbf24; }
+    .company-item .co-name {
+      font-size: 0.93rem;
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+      display: inline;
+    }
+    .company-item a.co-name:hover { color: #fbbf24; }
+    .company-item .co-meta {
+      margin-top: 0.25rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem 0.5rem;
+      align-items: center;
+    }
+    .co-status-badge {
+      display: inline-block;
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .co-status-active   { background: #052e16; color: #4ade80; border: 1px solid #166534; }
+    .co-status-struck   { background: #1f0505; color: #f87171; border: 1px solid #7f1d1d; }
+    .co-status-unknown  { background: #1a1a1a; color: #6b7280; border: 1px solid #374151; }
+
+    .co-flags-box {
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-border);
+      border-radius: 8px;
+      padding: 0.7rem 1rem;
+      margin-bottom: 1rem;
+      font-size: 0.84rem;
+      color: var(--warn-text);
+      line-height: 1.7;
+    }
+    .co-flags-box strong {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 0.35rem;
+    }
+
     /* ── Export PDF button ───────────────────── */
     .btn-export-pdf {
       background: #052e16;
@@ -727,6 +797,7 @@
         <span class="graph-legend-item"><span class="legend-glyph" style="color:#69f0ae">⬡</span><span style="color:#69f0ae99">News</span></span>
         <span class="graph-legend-item"><span class="legend-glyph" style="color:#00e676">⬡</span><span style="color:#00e67699">India News</span></span>
         <span class="graph-legend-item"><span class="legend-glyph" style="color:#fff176">⬡</span><span style="color:#fff17699">Organisation</span></span>
+        <span class="graph-legend-item"><span class="legend-glyph" style="color:#fbbf24">⬡</span><span style="color:#fbbf2499">Company</span></span>
       </div>
     </div>
   </div>
@@ -939,6 +1010,39 @@
     </div>
   </div>
 
+  <!-- Organisations Found -->
+  <div class="card">
+    <div class="card-header">
+      <span class="icon">🏢</span>
+      <h3>Organisations Found</h3>
+      {% set cd = profile.company_data %}
+      {% if cd and cd.total_found %}
+        <span class="count">{{ cd.total_found }} found</span>
+      {% endif %}
+    </div>
+    <div class="card-body">
+      {% set cd = profile.company_data %}
+      {% if not cd or cd.error == 'no_wikipedia_summary' %}
+        <p class="empty">No organisations extracted — Wikipedia summary unavailable for this entity.</p>
+      {% elif cd.total_found == 0 %}
+        <p class="empty">No organisations extracted from Wikipedia summary.</p>
+      {% else %}
+        <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.9rem;">
+          Extracted from Wikipedia summary
+        </p>
+        <ul class="company-list" style="list-style:none;">
+          {% for org in cd.organisations_found %}
+          <li class="company-item">
+            <a class="co-name"
+               href="https://www.google.com/search?q={{ org | urlencode }}"
+               target="_blank" rel="noopener noreferrer">{{ org }}</a>
+          </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  </div>
+
   <!-- WHOIS -->
   <div class="card">
     <div class="card-header">
@@ -1020,6 +1124,13 @@
   var entityEdges   = null;
   var _pulseRaf     = null;
 
+  // Node action registry — keyed by node ID, never touched by vis.js.
+  // Stores { clickUrl, articles, sourceName, articleCount, cityName, lat, lon,
+  //          orgName, domainFull, registrar, domainCountry, domainOrg }
+  // for every node that needs it. The click and hover handlers read this
+  // map directly so they are immune to vis.DataSet property stripping.
+  var _nodeActions = {};
+
   // Palette — unified hexagon theme
   var EG = {
     subject:    { bg: '#000d1a',  border: '#00f5ff', glow: '#00f5ff', hlBg: '#001a33',  hlBorder: '#00f5ff' },
@@ -1029,6 +1140,7 @@
     news:       { bg: '#001a0d',  border: '#69f0ae', glow: '#69f0ae', hlBg: '#002a15',  hlBorder: '#b9f6ca' },
     india:      { bg: '#001a0d',  border: '#00e676', glow: '#00e676', hlBg: '#002a15',  hlBorder: '#69f0ae' },
     org:        { bg: '#1a1a00',  border: '#fff176', glow: '#fff176', hlBg: '#2a2a00',  hlBorder: '#ffff8d' },
+    company:    { bg: '#1a0e00',  border: '#fbbf24', glow: '#fbbf24', hlBg: '#2a1800',  hlBorder: '#fcd34d' },
     subDomain:  { bg: '#0d0d1a',  border: '#7986cb', glow: '#7986cb', hlBg: '#1a1a33',  hlBorder: '#9fa8da' }
   };
 
@@ -1055,16 +1167,17 @@
     if (p) p.style.display = 'none';
   }
 
-  function showArticlePopup(node, clientX, clientY) {
+  // actions = entry from _nodeActions (has .sourceName and .articles)
+  function showArticlePopup(actions, clientX, clientY) {
     var popup   = document.getElementById('node-article-popup');
     var nameDiv = document.getElementById('popup-source-name');
     var listDiv = document.getElementById('popup-articles-list');
     if (!popup || !nameDiv || !listDiv) return;
 
-    nameDiv.textContent = node._srcFull || node.label || '';
+    nameDiv.textContent = actions.sourceName || '';
     listDiv.innerHTML = '';
 
-    (node.articles || []).forEach(function(article, idx) {
+    (actions.articles || []).forEach(function(article, idx) {
       var item = document.createElement('div');
       item.style.cssText = 'padding:8px 0;border-bottom:1px solid #ffffff11;cursor:pointer;font-family:monospace;';
 
@@ -1186,17 +1299,28 @@
     // Build ALL branch nodes first so we can count them for the subject shape
     var branches = [], edges = [];
 
+    // Reset the node-actions registry for this build
+    _nodeActions = {};
+
     // Location — hexagon, cyan-blue
     var loc = p.location;
     if (loc && loc.city) {
+      var locClickUrl = (loc.lat && loc.lon)
+        ? 'https://www.google.com/maps?q=' + loc.lat + ',' + loc.lon
+        : null;
+      _nodeActions['location'] = {
+        clickUrl: locClickUrl,
+        cityName: loc.city,
+        lat: loc.lat || null,
+        lon: loc.lon || null
+      };
       branches.push(Object.assign({}, NODE_BASE, {
         id: 'location', label: hexLabel(loc.city),
         color: nodeColor(EG.location), size: 55, shape: 'hexagon',
         font: nodeFont(),
         shadow: nodeGlow(EG.location.glow, 20),
         title: '📍 ' + loc.city + (loc.lat ? '\nLat: ' + loc.lat + '  Lon: ' + loc.lon + '\nClick to open Google Maps' : ''),
-        type: 'location', _city: loc.city,
-        lat: loc.lat || null, lon: loc.lon || null
+        type: 'location'
       }));
       edges.push(makeEdge('subject', 'location'));
     }
@@ -1207,13 +1331,19 @@
       var domainRaw  = wd.domain_name || 'Domain';
       var domainFull = (Array.isArray(domainRaw) ? domainRaw[0] : String(domainRaw))
                        .toLowerCase().split('\n')[0];
+      _nodeActions['domain'] = {
+        clickUrl: 'https://who.is/whois/' + domainFull,
+        domainFull: domainFull,
+        registrar: wd.registrar || null,
+        domainCountry: wd.country || null,
+        domainOrg: wd.org || null
+      };
       branches.push(Object.assign({}, NODE_BASE, {
         id: 'domain', label: hexLabel(domainFull),
         color: nodeColor(EG.domain), size: 55, shape: 'hexagon',
         font: nodeFont(), shadow: nodeGlow(EG.domain.glow, 20),
         title: '🌐 ' + domainFull + (wd.registrar ? '\nRegistrar: ' + wd.registrar : '') + '\nClick to look up WHOIS',
-        type: 'domain', domainFull: domainFull,
-        _registrar: wd.registrar || null, _country: wd.country || null, _org: wd.org || null
+        type: 'domain'
       }));
       edges.push(makeEdge('subject', 'domain'));
 
@@ -1256,14 +1386,16 @@
     });
     Object.keys(newsArticlesBySource).slice(0, 5).forEach(function(src, i) {
       var arts = newsArticlesBySource[src];
+      var nid = 'news_' + i;
+      _nodeActions[nid] = { sourceName: src, articleCount: arts.length, articles: arts };
       branches.push(Object.assign({}, NODE_BASE, {
-        id: 'news_' + i, label: hexLabel(src),
+        id: nid, label: hexLabel(src),
         color: nodeColor(EG.news), size: 52, shape: 'hexagon',
         font: nodeFont(), shadow: nodeGlow(EG.news.glow, 18),
         title: src + '\nArticles: ' + arts.length,
-        type: 'news', _srcFull: src, _count: arts.length, articles: arts
+        type: 'news'
       }));
-      edges.push(makeEdge('subject', 'news_' + i));
+      edges.push(makeEdge('subject', nid));
     });
 
     // Indian news sources — hexagon, bright green (distinct from global)
@@ -1276,26 +1408,71 @@
     });
     Object.keys(indiaArticlesBySource).slice(0, 5).forEach(function(src, i) {
       var arts = indiaArticlesBySource[src];
+      var iid = 'india_' + i;
+      _nodeActions[iid] = { sourceName: src, articleCount: arts.length, articles: arts };
       branches.push(Object.assign({}, NODE_BASE, {
-        id: 'india_' + i, label: hexLabel(src),
+        id: iid, label: hexLabel(src),
         color: nodeColor(EG.india), size: 52, shape: 'hexagon',
         font: nodeFont(), shadow: nodeGlow(EG.india.glow, 18),
         title: src + ' (Indian)\nArticles: ' + arts.length,
-        type: 'india', _srcFull: src, _count: arts.length, articles: arts
+        type: 'india'
       }));
-      edges.push(makeEdge('subject', 'india_' + i));
+      edges.push(makeEdge('subject', iid));
     });
+
+    // Organisation nodes — yellow hexagon, extracted from Wikipedia
+    var cd = p.company_data;
+    if (cd && cd.organisations_found) {
+      cd.organisations_found.forEach(function(orgName, i) {
+        var orgId     = 'org_wiki_' + i;
+        var orgSearch = 'https://www.google.com/search?q=' + encodeURIComponent(orgName);
+        _nodeActions[orgId] = { clickUrl: orgSearch, orgName: orgName };
+        branches.push(Object.assign({}, NODE_BASE, {
+          id: orgId,
+          label: hexLabel(orgName.slice(0, 12)),
+          color: nodeColor(EG.company), size: 52, shape: 'hexagon',
+          font: nodeFont(), shadow: nodeGlow(EG.company.glow, 18),
+          title: '🏢 ' + orgName + '\nClick to search on Google ↗',
+          type: 'company'
+        }));
+        edges.push({
+          from: 'subject', to: orgId,
+          label: '',
+          font: { size: 0 },
+          color: { color: '#fbbf2466', opacity: 0.7, highlight: '#fbbf24' },
+          dashes: false, width: 1.2,
+          smooth: { enabled: false },
+          chosen: false,
+          arrows: { to: { enabled: true, scaleFactor: 0.35, type: 'arrow' } }
+        });
+      });
+    }
 
     // Pre-position all branches in a perfect spoke circle
     _spokePositions(branches);
 
-    // Subject node: circularImage when thumbnail available, hexagon otherwise
-    var thumbnail  = wp && wp.thumbnail ? wp.thumbnail : null;
+    // Subject node — circularImage with photo, or hexagon with initials
+    var rawThumb = wp && wp.thumbnail ? wp.thumbnail : '';
+    var hasPhoto = typeof rawThumb === 'string' &&
+                   rawThumb.length > 0 &&
+                   rawThumb.indexOf('http') === 0;
+
+    // Initials: first letter of each word, up to 3 chars, upper-cased
+    var subjectInitials = p.entity_name
+      .split(/\s+/)
+      .filter(function(w) { return w.length > 0; })
+      .map(function(w) { return w[0].toUpperCase(); })
+      .join('')
+      .slice(0, 3);
+
+    var subjectClickUrl = 'https://en.wikipedia.org/wiki/Special:Search?search=' + encodeURIComponent(p.entity_name);
+    _nodeActions['subject'] = { clickUrl: subjectClickUrl };
+
     var subjectNode;
-    if (thumbnail) {
+    if (hasPhoto) {
       subjectNode = Object.assign({}, NODE_BASE, {
         id: 'subject', label: '',
-        image: thumbnail, shape: 'circularImage', size: 75,
+        image: rawThumb, shape: 'circularImage', size: 75,
         borderWidth: 3,
         widthConstraint: false,
         color: { background: '#000d1a', border: '#00f5ff',
@@ -1308,12 +1485,12 @@
       });
     } else {
       subjectNode = Object.assign({}, NODE_BASE, {
-        id: 'subject', label: hexLabel(p.entity_name),
+        id: 'subject', label: subjectInitials,
         shape: 'hexagon', size: 80,
         borderWidth: 3,
         color: { background: '#000d1a', border: '#00f5ff',
                  highlight: { background: '#001a33', border: '#00f5ff' } },
-        font: { color: '#ffffff', size: 12, face: 'monospace', bold: true,
+        font: { color: '#ffffff', size: 24, face: 'monospace', bold: true,
                 vadjust: 0, align: 'center', strokeWidth: 3, strokeColor: '#000000' },
         shadow: { enabled: true, color: '#00f5ff', size: 20, x: 0, y: 0 },
         x: 0, y: 0,
@@ -1385,66 +1562,72 @@
     var _tooltip = document.getElementById('graph-tooltip');
 
     entityNetwork.on('click', function(params) {
-      if (params.nodes.length === 0) {
-        hidePopup();
-        return;
-      }
-      var node = entityNodes.get(params.nodes[0]);
+      if (params.nodes.length === 0) { hidePopup(); return; }
+      var nodeId  = params.nodes[0];
+      var node    = entityNodes.get(nodeId);
+      var actions = _nodeActions[nodeId] || {};
       if (!node) return;
       hidePopup();
 
-      if ((node.type === 'news' || node.type === 'india') && node.articles) {
-        // Single article → open directly; multiple → show popup
-        if (node.articles.length === 1 && node.articles[0].url) {
-          var url0 = node.articles[0].url;
-          setTimeout(function() { window.open(url0, '_blank'); }, 10);
-        } else {
+      var nodeType = node.type;
+
+      // News/India nodes: popup for multiple articles, direct open for one.
+      if (nodeType === 'news' || nodeType === 'india') {
+        var arts = actions.articles || [];
+        if (arts.length === 1 && arts[0].url) {
+          window.open(arts[0].url, '_blank');
+        } else if (arts.length > 1) {
           var ev = params.event.srcEvent || params.event;
-          showArticlePopup(node, ev.clientX, ev.clientY);
+          showArticlePopup(actions, ev.clientX, ev.clientY);
         }
-      } else if (node.type === 'location' && node.lat && node.lon) {
-        var mapsUrl = 'https://www.google.com/maps?q=' + node.lat + ',' + node.lon;
-        setTimeout(function() { window.open(mapsUrl, '_blank'); }, 10);
-      } else if (node.type === 'subject') {
-        var wikiUrl = 'https://en.wikipedia.org/wiki/Special:Search?search=' + encodeURIComponent(PROFILE_DATA.entity_name);
-        setTimeout(function() { window.open(wikiUrl, '_blank'); }, 10);
-      } else if (node.type === 'domain' && node.domainFull) {
-        var whoisUrl = 'https://who.is/whois/' + node.domainFull;
-        setTimeout(function() { window.open(whoisUrl, '_blank'); }, 10);
+        return;
+      }
+
+      // All other node types: open the URL registered at construction time.
+      if (actions.clickUrl) {
+        window.open(actions.clickUrl, '_blank');
       }
     });
 
     // ── Hover tooltip — custom floating div (Fixes 3-7) ─────────────────────
     entityNetwork.on('hoverNode', function(params) {
       if (!_tooltip) return;
-      var node = entityNodes.get(params.node);
+      var node    = entityNodes.get(params.node);
+      var actions = _nodeActions[params.node] || {};
       if (!node) return;
       var html = '';
-      if (node.type === 'news' || node.type === 'india') {
-        html = '<strong style="color:#69f0ae">' + node._srcFull + '</strong>';
-        html += ' <span style="color:#546e7a">(' + node._count + ' article' + (node._count > 1 ? 's' : '') + ')</span><br><br>';
-        (node.articles || []).slice(0, 3).forEach(function(a) {
+      var nodeType = node.type;
+
+      if (nodeType === 'news' || nodeType === 'india') {
+        var sn  = actions.sourceName   || '';
+        var cnt = actions.articleCount || 0;
+        html = '<strong style="color:#69f0ae">' + sn + '</strong>';
+        html += ' <span style="color:#546e7a">(' + cnt + ' article' + (cnt > 1 ? 's' : '') + ')</span><br><br>';
+        (actions.articles || []).slice(0, 3).forEach(function(a) {
           html += '<span style="color:#b9f6ca">• ' + (a.title.length > 50 ? a.title.slice(0, 49) + '…' : a.title) + '</span><br>';
         });
-        if (node._count > 3) html += '<span style="color:#546e7a;font-size:10px">… and ' + (node._count - 3) + ' more</span><br>';
+        if (cnt > 3) html += '<span style="color:#546e7a;font-size:10px">… and ' + (cnt - 3) + ' more</span><br>';
         html += '<br><span style="color:#69f0ae;opacity:0.7">Click for article list ↗</span>';
-      } else if (node.type === 'location') {
-        html = '<strong style="color:#4fc3f7">📍 ' + node._city + '</strong><br>';
-        if (node.lat) {
-          html += '<span style="color:#80d8ff">Lat: ' + node.lat + '</span><br>';
-          html += '<span style="color:#80d8ff">Lon: ' + node.lon + '</span><br>';
+      } else if (nodeType === 'location') {
+        html = '<strong style="color:#4fc3f7">📍 ' + (actions.cityName || '') + '</strong><br>';
+        if (actions.lat) {
+          html += '<span style="color:#80d8ff">Lat: ' + actions.lat + '</span><br>';
+          html += '<span style="color:#80d8ff">Lon: ' + actions.lon + '</span><br>';
           html += '<br><span style="color:#4fc3f7;opacity:0.7">Click to open Google Maps ↗</span>';
         }
-      } else if (node.type === 'subject') {
+      } else if (nodeType === 'subject') {
         html = '<strong style="color:#00f5ff">👤 ' + PROFILE_DATA.entity_name + '</strong><br>';
         html += '<span style="color:#546e7a">Generated: ' + PROFILE_DATA.generated_at.slice(0, 19).replace('T', ' ') + ' UTC</span><br>';
         html += '<br><span style="color:#00f5ff;opacity:0.7">Click to search Wikipedia ↗</span>';
-      } else if (node.type === 'domain') {
-        html = '<strong style="color:#b39ddb">🌐 ' + (node.domainFull || 'Domain') + '</strong><br>';
-        if (node._registrar) html += '<span style="color:#d1c4e9">Registrar: ' + node._registrar + '</span><br>';
-        if (node._country)   html += '<span style="color:#d1c4e9">Country: ' + node._country + '</span><br>';
-        if (node._org)       html += '<span style="color:#d1c4e9">Org: ' + node._org + '</span><br>';
+      } else if (nodeType === 'domain') {
+        html = '<strong style="color:#b39ddb">🌐 ' + (actions.domainFull || 'Domain') + '</strong><br>';
+        if (actions.registrar)     html += '<span style="color:#d1c4e9">Registrar: ' + actions.registrar + '</span><br>';
+        if (actions.domainCountry) html += '<span style="color:#d1c4e9">Country: ' + actions.domainCountry + '</span><br>';
+        if (actions.domainOrg)     html += '<span style="color:#d1c4e9">Org: ' + actions.domainOrg + '</span><br>';
         html += '<br><span style="color:#b39ddb;opacity:0.7">Click to look up WHOIS ↗</span>';
+      } else if (nodeType === 'company') {
+        html = '<strong style="color:#fbbf24">🏢 ' + (actions.orgName || '') + '</strong><br>';
+        html += '<br><span style="color:#fbbf24;opacity:0.7">Click to search on Google ↗</span>';
       }
       if (html && _tooltip) {
         _tooltip.innerHTML = html;

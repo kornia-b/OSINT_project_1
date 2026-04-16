@@ -28,6 +28,9 @@ def lookup_wikipedia(entity_name: str) -> dict:
         thumbnail = ""
         if data.get("thumbnail"):
             thumbnail = data["thumbnail"].get("source", "")
+        # Fall back to originalimage if thumbnail is absent
+        if not thumbnail and data.get("originalimage"):
+            thumbnail = data["originalimage"].get("source", "")
 
         return {
             "found": True,
