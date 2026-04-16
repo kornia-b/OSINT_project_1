@@ -501,6 +501,52 @@
       margin-bottom: 0.35rem;
     }
 
+    /* ── Court Records card ─────────────────── */
+    .court-list { display: flex; flex-direction: column; gap: 1rem; list-style: none; }
+    .court-item {
+      border-left: 3px solid #2a0a0a;
+      padding-left: 1rem;
+      transition: border-color 0.15s;
+    }
+    .court-item:hover { border-left-color: #ff5252; }
+    .court-item .case-title {
+      font-size: 0.93rem;
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+      display: inline;
+    }
+    .court-item a.case-title:hover { color: #ff5252; }
+    .court-item .case-meta {
+      margin-top: 0.25rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem 0.5rem;
+      align-items: center;
+    }
+    .court-item .case-summary {
+      margin-top: 0.3rem;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      line-height: 1.55;
+    }
+    .doc-type-badge {
+      display: inline-block;
+      font-size: 0.6rem;
+      font-weight: 800;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 0.14rem 0.42rem;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .doc-judgment  { background: #1a0505; color: #f87171; border: 1px solid #7f1d1d; }
+    .doc-order     { background: #1a0d00; color: #fb923c; border: 1px solid #7c2d12; }
+    .doc-act       { background: #0a0a1a; color: #818cf8; border: 1px solid #3730a3; }
+    .doc-other     { background: #111;    color: #6b7280; border: 1px solid #374151; }
+
     /* ── Export PDF button ───────────────────── */
     .btn-export-pdf {
       background: #052e16;
@@ -798,6 +844,7 @@
         <span class="graph-legend-item"><span class="legend-glyph" style="color:#00e676">⬡</span><span style="color:#00e67699">India News</span></span>
         <span class="graph-legend-item"><span class="legend-glyph" style="color:#fff176">⬡</span><span style="color:#fff17699">Organisation</span></span>
         <span class="graph-legend-item"><span class="legend-glyph" style="color:#fbbf24">⬡</span><span style="color:#fbbf2499">Company</span></span>
+        <span class="graph-legend-item"><span class="legend-glyph" style="color:#ff5252">⬡</span><span style="color:#ff525299">Court Case</span></span>
       </div>
     </div>
   </div>
@@ -1043,6 +1090,74 @@
     </div>
   </div>
 
+  <!-- Court Records -->
+  <div class="card">
+    <div class="card-header">
+      <span class="icon">⚖️</span>
+      <h3>Court Records</h3>
+      {% set ct = profile.court_data %}
+      {% if ct and ct.total_found %}
+        <span class="count">{{ ct.total_found }} case(s)</span>
+      {% endif %}
+    </div>
+    <div class="card-body">
+      {% set ct = profile.court_data %}
+      {% if not ct or ct.error == 'missing_api_key' %}
+        <p class="empty">Indian Kanoon API key not configured — set <code>INDIAN_KANOON_API_KEY</code> in <code>.env</code>.</p>
+      {% elif ct.error == 'rate_limited' %}
+        <p class="empty">Indian Kanoon rate limit reached — try again shortly.</p>
+      {% elif ct.error == 'request_failed' %}
+        <p class="empty">Court records lookup failed — check connectivity.</p>
+      {% elif ct.total_found == 0 %}
+        <p class="empty">No court records found for this entity.</p>
+      {% else %}
+
+        {# Analyst flags #}
+        {% if ct.flags %}
+        <div class="co-flags-box">
+          <strong>⚠ Analyst Flags</strong>
+          {% for flag in ct.flags %}
+          <div>• {{ flag }}</div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <ul class="court-list">
+          {% for case in ct.cases_found %}
+          <li class="court-item">
+            <div>
+              {% if case.url %}
+              <a class="case-title" href="{{ case.url }}" target="_blank" rel="noopener noreferrer">{{ case.title }}</a>
+              {% else %}
+              <span class="case-title">{{ case.title }}</span>
+              {% endif %}
+              {% set dt = case.doc_type | lower %}
+              {% if 'judgment' in dt or 'judgement' in dt %}
+              <span class="doc-type-badge doc-judgment">Judgment</span>
+              {% elif 'order' in dt %}
+              <span class="doc-type-badge doc-order">Order</span>
+              {% elif 'act' in dt %}
+              <span class="doc-type-badge doc-act">Act</span>
+              {% elif case.doc_type %}
+              <span class="doc-type-badge doc-other">{{ case.doc_type }}</span>
+              {% endif %}
+            </div>
+            <div class="case-meta">
+              {% if case.court %}<span>{{ case.court }}</span>{% endif %}
+              {% if case.date %}<span>· {{ case.date }}</span>{% endif %}
+              {% if case.citation %}<span>· {{ case.citation }}</span>{% endif %}
+            </div>
+            {% if case.summary %}
+            <div class="case-summary">{{ case.summary }}</div>
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+
+      {% endif %}
+    </div>
+  </div>
+
   <!-- WHOIS -->
   <div class="card">
     <div class="card-header">
@@ -1141,6 +1256,7 @@
     india:      { bg: '#001a0d',  border: '#00e676', glow: '#00e676', hlBg: '#002a15',  hlBorder: '#69f0ae' },
     org:        { bg: '#1a1a00',  border: '#fff176', glow: '#fff176', hlBg: '#2a2a00',  hlBorder: '#ffff8d' },
     company:    { bg: '#1a0e00',  border: '#fbbf24', glow: '#fbbf24', hlBg: '#2a1800',  hlBorder: '#fcd34d' },
+    court:      { bg: '#1a0000',  border: '#ff5252', glow: '#ff5252', hlBg: '#2a0000',  hlBorder: '#ff8a80' },
     subDomain:  { bg: '#0d0d1a',  border: '#7986cb', glow: '#7986cb', hlBg: '#1a1a33',  hlBorder: '#9fa8da' }
   };
 
@@ -1448,6 +1564,26 @@
       });
     }
 
+    // Court case nodes — red hexagon
+    var courtData = p.court_data;
+    if (courtData && courtData.cases_found) {
+      courtData.cases_found.forEach(function(cas, i) {
+        var cid      = 'court_' + i;
+        var casUrl   = cas.url || '';
+        var casTitle = cas.title || ('Case ' + (i + 1));
+        _nodeActions[cid] = { clickUrl: casUrl, caseTitle: casTitle, court: cas.court, date: cas.date };
+        branches.push(Object.assign({}, NODE_BASE, {
+          id: cid,
+          label: hexLabel(casTitle.slice(0, 12)),
+          color: nodeColor(EG.court), size: 40, shape: 'hexagon',
+          font: nodeFont(), shadow: nodeGlow(EG.court.glow, 16),
+          title: '⚖️ ' + casTitle + (cas.court ? '\n' + cas.court : '') + (cas.date ? '\n' + cas.date : '') + (casUrl ? '\nClick to open judgment ↗' : ''),
+          type: 'court'
+        }));
+        edges.push(makeEdge('subject', cid));
+      });
+    }
+
     // Pre-position all branches in a perfect spoke circle
     _spokePositions(branches);
 
@@ -1628,6 +1764,11 @@
       } else if (nodeType === 'company') {
         html = '<strong style="color:#fbbf24">🏢 ' + (actions.orgName || '') + '</strong><br>';
         html += '<br><span style="color:#fbbf24;opacity:0.7">Click to search on Google ↗</span>';
+      } else if (nodeType === 'court') {
+        html = '<strong style="color:#ff5252">⚖️ ' + (actions.caseTitle || '') + '</strong><br>';
+        if (actions.court) html += '<span style="color:#ff8a80">' + actions.court + '</span><br>';
+        if (actions.date)  html += '<span style="color:#ff8a80">' + actions.date + '</span><br>';
+        if (actions.clickUrl) html += '<br><span style="color:#ff5252;opacity:0.7">Click to open judgment ↗</span>';
       }
       if (html && _tooltip) {
         _tooltip.innerHTML = html;
