@@ -7,6 +7,7 @@ from connectors.wikipedia_connector import lookup_wikipedia
 from connectors.indian_news_connector import fetch_indian_news
 from connectors.company_connector import fetch_company_data
 from connectors.court_connector import fetch_court_data
+from risk_engine import calculate_risk
 
 
 def resolve_age_filter(exact_age, min_age, max_age) -> tuple[str, str]:
@@ -48,7 +49,7 @@ def build_profile(
     company_data = fetch_company_data(entity_name, wiki_summary)
     court_data   = fetch_court_data(entity_name)
 
-    return {
+    profile = {
         "entity_name": entity_name,
         "location": location,
         "age_filter_applied": age_filter_label,
@@ -60,3 +61,6 @@ def build_profile(
         "court_data":   court_data,
         "generated_at": datetime.now(timezone.utc).isoformat(),
     }
+
+    profile["risk_assessment"] = calculate_risk(profile)
+    return profile

@@ -217,6 +217,114 @@
       color: var(--text-muted);
     }
 
+    /* ── Risk Assessment Card ────────────────── */
+    .risk-card {
+      background: #0d0d1a;
+      border-radius: 12px;
+      margin-bottom: 1.1rem;
+      overflow: hidden;
+      border-width: 1px;
+      border-style: solid;
+    }
+    .risk-card.risk-high   { border-color: #ff5252; box-shadow: 0 0 18px #ff525233; }
+    .risk-card.risk-medium { border-color: #ffab40; box-shadow: 0 0 18px #ffab4033; }
+    .risk-card.risk-low    { border-color: #69f0ae; box-shadow: 0 0 18px #69f0ae22; }
+
+    .risk-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem 0.75rem;
+    }
+    .risk-title {
+      font-family: 'Courier New', monospace;
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .risk-card.risk-high   .risk-title { color: #ff5252; }
+    .risk-card.risk-medium .risk-title { color: #ffab40; }
+    .risk-card.risk-low    .risk-title { color: #69f0ae; }
+
+    .risk-score-label {
+      font-family: 'Courier New', monospace;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+    }
+    .risk-bar-track {
+      height: 4px;
+      background: #1c1c2e;
+      margin: 0 1.25rem;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .risk-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.6s ease;
+    }
+    .risk-card.risk-high   .risk-bar-fill { background: #ff5252; }
+    .risk-card.risk-medium .risk-bar-fill { background: #ffab40; }
+    .risk-card.risk-low    .risk-bar-fill { background: #69f0ae; }
+
+    .risk-divider {
+      border: none;
+      border-top: 1px solid #1c1c2e;
+      margin: 0.75rem 1.25rem 0;
+    }
+    .risk-section {
+      padding: 0.65rem 1.25rem;
+    }
+    .risk-section-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+    .risk-flags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.35rem;
+    }
+    .risk-flag {
+      font-family: 'Courier New', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      border: 1px solid;
+    }
+    .risk-card.risk-high   .risk-flag { color: #ff5252; border-color: #ff525244; background: #ff52520d; }
+    .risk-card.risk-medium .risk-flag { color: #ffab40; border-color: #ffab4044; background: #ffab400d; }
+    .risk-card.risk-low    .risk-flag { color: #69f0ae; border-color: #69f0ae44; background: #69f0ae0d; }
+
+    .risk-evidence-list {
+      list-style: none;
+      margin-top: 0.35rem;
+    }
+    .risk-evidence-list li {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-style: italic;
+      padding: 0.15rem 0;
+    }
+    .risk-evidence-list li::before {
+      content: '• ';
+      color: var(--text-dim);
+    }
+    .risk-low-simple {
+      padding: 0.85rem 1.25rem 1rem;
+      font-size: 0.82rem;
+      color: #69f0ae99;
+      font-style: italic;
+    }
+
     /* ── Cards ───────────────────────────────── */
     .card {
       background: var(--surface);
@@ -939,6 +1047,47 @@
   <!-- Profile data for graph (server-rendered JSON) -->
   <script>var PROFILE_DATA = {{ profile | tojson }};</script>
 
+  <!-- ── Risk Assessment Card ── -->
+  {% set risk = profile.risk_assessment %}
+  {% set risk_cls = 'risk-' + risk.risk_level | lower %}
+  <div class="risk-card {{ risk_cls }}">
+    <div class="risk-header">
+      <span class="risk-title">{{ risk.risk_emoji }} {{ risk.risk_level }} RISK &nbsp;·&nbsp; RISK ASSESSMENT</span>
+      <span class="risk-score-label">Score: {{ risk.risk_score }}/100</span>
+    </div>
+    <div class="risk-bar-track">
+      <div class="risk-bar-fill" style="width:{{ [risk.risk_score, 100] | min }}%;background-color:{{ risk.risk_colour }};"></div>
+    </div>
+
+    {% if risk.risk_level != 'LOW' %}
+      {% if risk.flags %}
+      <hr class="risk-divider">
+      <div class="risk-section">
+        <div class="risk-section-label">⚠ Analyst Flags</div>
+        <div class="risk-flags">
+          {% for flag in risk.flags %}
+          <span class="risk-flag">{{ flag }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      {% if risk.evidence %}
+      <hr class="risk-divider">
+      <div class="risk-section">
+        <div class="risk-section-label">Evidence</div>
+        <ul class="risk-evidence-list">
+          {% for item in risk.evidence %}
+          <li>{{ item }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+    {% else %}
+      <div class="risk-low-simple">No significant risk indicators detected across court records, news, WHOIS, and Wikipedia data.</div>
+    {% endif %}
+  </div>
+
   <!-- Entity Graph -->
   <div class="card" style="border-color:#00f5ff1a;background:#000810;">
     <div class="card-header" style="background:#00060f;border-bottom:1px solid #00f5ff1a;">
@@ -1498,7 +1647,7 @@
       var el = document.querySelector('.' + cls);
       if (el) el.remove();
     });
-    document.querySelectorAll('.card').forEach(function (el) { el.remove(); });
+    document.querySelectorAll('.card, .risk-card').forEach(function (el) { el.remove(); });
 
     // Focus the name field
     document.getElementById('name').focus();
@@ -1884,6 +2033,8 @@
     var subjectClickUrl = 'https://en.wikipedia.org/wiki/Special:Search?search=' + encodeURIComponent(p.entity_name);
     _nodeActions['subject'] = { clickUrl: subjectClickUrl };
 
+    var riskColour = (p.risk_assessment && p.risk_assessment.risk_colour) || '#00f5ff';
+
     var subjectNode;
     if (hasPhoto) {
       subjectNode = Object.assign({}, NODE_BASE, {
@@ -1891,10 +2042,10 @@
         image: rawThumb, shape: 'circularImage', size: 75,
         borderWidth: 3,
         widthConstraint: false,
-        color: { background: '#000d1a', border: '#00f5ff',
-                 highlight: { background: '#001a33', border: '#00f5ff' } },
+        color: { background: '#000d1a', border: riskColour,
+                 highlight: { background: '#001a33', border: riskColour } },
         font: nodeFont(),
-        shadow: { enabled: true, color: '#00f5ff', size: 20, x: 0, y: 0 },
+        shadow: { enabled: true, color: riskColour, size: 20, x: 0, y: 0 },
         x: 0, y: 0,
         title: '👤 ' + p.entity_name + '\nClick to search Wikipedia',
         type: 'subject'
@@ -1904,11 +2055,11 @@
         id: 'subject', label: subjectInitials,
         shape: 'hexagon', size: 80,
         borderWidth: 3,
-        color: { background: '#000d1a', border: '#00f5ff',
-                 highlight: { background: '#001a33', border: '#00f5ff' } },
+        color: { background: '#000d1a', border: riskColour,
+                 highlight: { background: '#001a33', border: riskColour } },
         font: { color: '#ffffff', size: 24, face: 'monospace', bold: true,
                 vadjust: 0, align: 'center', strokeWidth: 3, strokeColor: '#000000' },
-        shadow: { enabled: true, color: '#00f5ff', size: 20, x: 0, y: 0 },
+        shadow: { enabled: true, color: riskColour, size: 20, x: 0, y: 0 },
         x: 0, y: 0,
         title: '👤 ' + p.entity_name + '\nClick to search Wikipedia',
         type: 'subject'
@@ -2112,8 +2263,9 @@
     if (_pulseRaf) { cancelAnimationFrame(_pulseRaf); _pulseRaf = null; }
 
     // Reset subject to stable base
+    var _rc = (PROFILE_DATA.risk_assessment && PROFILE_DATA.risk_assessment.risk_colour) || EG.subject.glow;
     entityNodes.update({ id: 'subject', size: 80, borderWidth: 3,
-                         shadow: nodeGlow(EG.subject.glow, 20) });
+                         shadow: nodeGlow(_rc, 20) });
 
     // Recalculate spoke positions for all branches, re-enable physics to re-stabilize
     var R = 350;
