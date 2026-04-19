@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NISHK — Intelligence Platform</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><text y='32' font-size='36' fill='%2300f5ff'>◈</text></svg>">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #000008;
+      color: #dde2f0;
+      font-family: "Courier New", monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── Animated grid background ─────────────── */
+    .grid-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background-image:
+        linear-gradient(rgba(0,245,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,245,255,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      animation: gridDrift 20s linear infinite;
+    }
+    @keyframes gridDrift {
+      from { background-position: 0 0; }
+      to   { background-position: 40px 40px; }
+    }
+
+    /* ── Scanline overlay ─────────────────────── */
+    .scanline {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.08) 2px,
+        rgba(0,0,0,0.08) 4px
+      );
+    }
+
+    /* ── Main content ─────────────────────────── */
+    .content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2.5rem;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    /* ── Logo block ───────────────────────────── */
+    .logo-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .logo-rule {
+      width: 340px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #00f5ff66, transparent);
+    }
+    .logo-inner {
+      padding: 1.2rem 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .logo-mark {
+      font-size: 1rem;
+      color: #00f5ff88;
+      letter-spacing: 0.3em;
+      animation: pulse 3s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; }
+      50%       { opacity: 1; }
+    }
+    .logo-name {
+      font-size: 4.5rem;
+      font-weight: 900;
+      letter-spacing: 0.25em;
+      color: #ffffff;
+      text-shadow:
+        0 0 20px #00f5ff55,
+        0 0 60px #00f5ff22;
+      line-height: 1;
+    }
+    .logo-sub {
+      font-size: 0.72rem;
+      letter-spacing: 0.45em;
+      color: #00f5ffaa;
+      text-transform: uppercase;
+    }
+
+    /* ── Tagline ──────────────────────────────── */
+    .tagline {
+      font-size: 0.82rem;
+      color: #6b7280;
+      letter-spacing: 0.08em;
+      line-height: 1.7;
+      max-width: 420px;
+    }
+    .tagline em {
+      color: #9ca3af;
+      font-style: normal;
+    }
+
+    /* ── Stat tiles ───────────────────────────── */
+    .stats {
+      display: flex;
+      gap: 1rem;
+    }
+    .stat-tile {
+      border: 1px solid #00f5ff22;
+      background: #00f5ff06;
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      min-width: 100px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.3rem;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .stat-tile:hover {
+      border-color: #00f5ff55;
+      box-shadow: 0 0 16px #00f5ff1a;
+    }
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: #00f5ff;
+      line-height: 1;
+      text-shadow: 0 0 12px #00f5ff44;
+    }
+    .stat-label {
+      font-size: 0.58rem;
+      letter-spacing: 0.2em;
+      color: #6b7280;
+      text-transform: uppercase;
+    }
+
+    /* ── Enter button ─────────────────────────── */
+    .enter-btn {
+      display: inline-block;
+      border: 1px solid #00f5ff;
+      color: #00f5ff;
+      background: transparent;
+      font-family: "Courier New", monospace;
+      font-size: 0.9rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 0.85rem 2.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+      transition: color 0.25s, box-shadow 0.25s, background 0.25s;
+    }
+    .enter-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: #00f5ff;
+      transform: translateX(-100%);
+      transition: transform 0.25s ease;
+      z-index: -1;
+    }
+    .enter-btn:hover {
+      color: #000008;
+      box-shadow: 0 0 28px #00f5ff44;
+    }
+    .enter-btn:hover::before {
+      transform: translateX(0);
+    }
+
+    /* ── Footer ───────────────────────────────── */
+    .footer {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 0;
+      right: 0;
+      text-align: center;
+      z-index: 2;
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      color: #374151;
+      line-height: 1.7;
+    }
+  </style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<div class="scanline"></div>
+
+<div class="content">
+
+  <!-- Logo -->
+  <div class="logo-block">
+    <div class="logo-rule"></div>
+    <div class="logo-inner">
+      <span class="logo-mark">◈</span>
+      <span class="logo-name">NISHK</span>
+      <span class="logo-sub">Intelligence Platform</span>
+    </div>
+    <div class="logo-rule"></div>
+  </div>
+
+  <!-- Tagline -->
+  <p class="tagline">
+    <em>Open-source intelligence aggregation</em><br>
+    for law enforcement and investigators
+  </p>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat-tile">
+      <span class="stat-value">07</span>
+      <span class="stat-label">Connectors</span>
+    </div>
+    <div class="stat-tile">
+      <span class="stat-value">FREE</span>
+      <span class="stat-label">Sources</span>
+    </div>
+    <div class="stat-tile">
+      <span class="stat-value">LIVE</span>
+      <span class="stat-label">Data</span>
+    </div>
+  </div>
+
+  <!-- Enter button -->
+  <a href="/dashboard" class="enter-btn">ENTER PLATFORM &nbsp;→</a>
+
+</div>
+
+<footer class="footer">
+  Project Nishk — Prototype v0.1<br>
+  Built on public open-source feeds
+</footer>
+
+</body>
+</html>

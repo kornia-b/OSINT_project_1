@@ -21,7 +21,12 @@ def _int_or_none(value: str):
     return int(v) if v.isdigit() else None
 
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/")
+def landing():
+    return render_template("landing.html")
+
+
+@app.route("/dashboard", methods=["GET", "POST"])
 def index():
     profile = None
     error = None

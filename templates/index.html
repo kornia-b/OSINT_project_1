@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OSINT Entity Profiler</title>
+  <title>NISHK — Intelligence Platform</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><text y='32' font-size='36' fill='%2300f5ff'>◈</text></svg>">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -31,7 +32,7 @@
       font-family: "Segoe UI", system-ui, sans-serif;
       font-size: 0.92rem;
       min-height: 100vh;
-      padding: 2rem 1rem 4rem;
+      padding: 4.5rem 1rem 4rem;
     }
 
     /* ── Header ──────────────────────────────── */
@@ -935,10 +936,216 @@
     }
     .history-clear-btn:hover { color: #ff5252; }
 
+    /* ── Top nav bar ─────────────────────────── */
+    .nishk-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 50px;
+      background: #0d0d1a;
+      border-bottom: 1px solid #00f5ff22;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.5rem;
+      z-index: 1000;
+      font-family: "Courier New", monospace;
+    }
+    .nishk-nav-logo {
+      font-size: 0.95rem;
+      font-weight: 900;
+      color: #00f5ff;
+      letter-spacing: 0.2em;
+      text-decoration: none;
+      text-shadow: 0 0 12px #00f5ff44;
+    }
+    .nishk-nav-logo:hover { text-shadow: 0 0 20px #00f5ff88; }
+    .nishk-nav-center {
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      color: #00f5ff55;
+      text-transform: uppercase;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .nishk-nav-links {
+      display: flex;
+      gap: 1.25rem;
+      align-items: center;
+    }
+    .nishk-nav-links a, .nishk-nav-links button {
+      font-family: "Courier New", monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      color: #6b7280;
+      text-transform: uppercase;
+      text-decoration: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      transition: color 0.2s;
+    }
+    .nishk-nav-links a:hover, .nishk-nav-links button:hover { color: #00f5ff; }
+
+    /* ── About modal ─────────────────────────── */
+    .about-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,8,0.85);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+    .about-overlay.open { display: flex; }
+    .about-modal {
+      background: #0d0d1a;
+      border: 1px solid #00f5ff33;
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 480px;
+      width: 90%;
+      position: relative;
+      box-shadow: 0 0 40px #00f5ff11;
+      font-family: "Courier New", monospace;
+    }
+    .about-modal-title {
+      font-size: 0.85rem;
+      font-weight: 900;
+      letter-spacing: 0.2em;
+      color: #00f5ff;
+      margin-bottom: 1.25rem;
+      text-transform: uppercase;
+    }
+    .about-modal-close {
+      position: absolute;
+      top: 1rem; right: 1rem;
+      background: none;
+      border: none;
+      color: #6b7280;
+      font-size: 1.1rem;
+      cursor: pointer;
+      line-height: 1;
+      font-family: "Courier New", monospace;
+    }
+    .about-modal-close:hover { color: #ff5252; }
+    .about-modal p {
+      font-size: 0.78rem;
+      color: #9ca3af;
+      line-height: 1.75;
+      margin-bottom: 1rem;
+    }
+    .about-modal .about-section-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      color: #6b7280;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+    .about-modal ul {
+      list-style: none;
+      margin-bottom: 1rem;
+    }
+    .about-modal ul li {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      padding: 0.15rem 0;
+    }
+    .about-modal ul li::before { content: "• "; color: #00f5ff66; }
+    .about-version {
+      font-size: 0.65rem;
+      color: #374151;
+      letter-spacing: 0.1em;
+      margin-top: 1rem;
+    }
+
+    /* ── Loading animation ───────────────────── */
+    @keyframes nishk-spin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+    .loading-overlay {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.25rem;
+      padding: 3rem 0 2rem;
+    }
+    .loading-overlay.active { display: flex; }
+    .loading-icon {
+      animation: nishk-spin 2s linear infinite;
+      color: #00f5ff;
+      font-size: 40px;
+      text-shadow: 0 0 20px #00f5ff66;
+      display: inline-block;
+    }
+    .loading-text {
+      font-family: "Courier New", monospace;
+      font-size: 0.78rem;
+      letter-spacing: 0.2em;
+      color: #00f5ff99;
+      text-transform: uppercase;
+    }
+
+    /* ── Dashboard footer ────────────────────── */
+    .nishk-footer {
+      text-align: center;
+      padding: 2rem 0 1rem;
+      font-family: "Courier New", monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      color: #374151;
+      line-height: 1.7;
+    }
+
+    /* ── Keyboard tip ────────────────────────── */
+    .kbd-tip {
+      font-size: 0.7rem;
+      color: #4b5563;
+      font-family: "Courier New", monospace;
+      letter-spacing: 0.06em;
+      margin-top: 0.75rem;
+      text-align: center;
+    }
+
   </style>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 <body>
+
+<!-- ── Top Nav ── -->
+<nav class="nishk-nav">
+  <a href="/" class="nishk-nav-logo">◈ NISHK</a>
+  <span class="nishk-nav-center">Intelligence Platform</span>
+  <div class="nishk-nav-links">
+    <button type="button" id="about-btn">About</button>
+    <a href="#">Docs</a>
+  </div>
+</nav>
+
+<!-- ── About Modal ── -->
+<div class="about-overlay" id="about-overlay">
+  <div class="about-modal">
+    <button class="about-modal-close" id="about-close" aria-label="Close">✕</button>
+    <div class="about-modal-title">◈ About Nishk</div>
+    <p>Nishk is an open-source intelligence aggregation platform designed for Indian law enforcement and investigative research.</p>
+    <div class="about-section-label">Data Sources</div>
+    <ul>
+      <li>News (GNews API + Indian RSS feeds)</li>
+      <li>Wikipedia</li>
+      <li>WHOIS registry</li>
+      <li>Indian Kanoon court records</li>
+      <li>OpenStreetMap geocoding</li>
+      <li>Wikipedia-derived organisations</li>
+    </ul>
+    <p>All data is retrieved from publicly accessible sources at query time.</p>
+    <div class="about-version">Version 0.1 — Prototype &nbsp;|&nbsp; Built with Python, Flask, vis-network</div>
+  </div>
+</div>
+
 <div class="container">
 
   <header>
@@ -966,7 +1173,7 @@
   <!-- ── Search Form ── -->
   <div class="search-card">
     <h2>Search Parameters</h2>
-    <form method="POST" action="/" id="search-form">
+    <form method="POST" action="/dashboard" id="search-form">
       <div class="form-grid">
 
         <div class="field full">
@@ -1024,8 +1231,15 @@
           <button type="submit" class="btn-submit">Generate Profile</button>
           <button type="button" class="btn-clear" id="btn-clear">Clear</button>
         </div>
+        <div class="kbd-tip">💡 TIP: Press Ctrl+Enter to search from any field</div>
       </div>
     </form>
+
+    <!-- Loading overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+      <span class="loading-icon">◈</span>
+      <span class="loading-text" id="loading-text">QUERYING 7 DATA SOURCES...</span>
+    </div>
   </div>
 
   <!-- ── Error ── -->
@@ -1469,6 +1683,42 @@
 <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+  // ── About modal ───────────────────────────────────────────────────────────
+  document.getElementById('about-btn').addEventListener('click', function() {
+    document.getElementById('about-overlay').classList.add('open');
+  });
+  document.getElementById('about-close').addEventListener('click', function() {
+    document.getElementById('about-overlay').classList.remove('open');
+  });
+  document.getElementById('about-overlay').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+  });
+
+  // ── Loading animation ─────────────────────────────────────────────────────
+  var _loadingMsgs = [
+    'QUERYING 7 DATA SOURCES...',
+    'CORRELATING ENTITIES...',
+    'BUILDING GRAPH...',
+  ];
+  document.getElementById('search-form').addEventListener('submit', function() {
+    var name = document.getElementById('name') || document.querySelector('[name="name"]');
+    if (!name || !name.value.trim()) return;
+    document.getElementById('loading-overlay').classList.add('active');
+    var msgEl = document.getElementById('loading-text');
+    var idx = 0;
+    setInterval(function() {
+      idx = (idx + 1) % _loadingMsgs.length;
+      msgEl.textContent = _loadingMsgs[idx];
+    }, 1500);
+  });
+
+  // ── Keyboard shortcut: Ctrl+Enter submits form ────────────────────────────
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      document.getElementById('search-form').submit();
+    }
+  });
+
   // ── Search History ────────────────────────────────────────────────────────
 
   var HISTORY_KEY  = 'osint_search_history';
@@ -1648,6 +1898,9 @@
       if (el) el.remove();
     });
     document.querySelectorAll('.card, .risk-card').forEach(function (el) { el.remove(); });
+
+    // Hide loading overlay if visible
+    document.getElementById('loading-overlay').classList.remove('active');
 
     // Focus the name field
     document.getElementById('name').focus();
@@ -2416,6 +2669,12 @@
     ">[ CLOSE ]</span>
   </div>
 </div>
+
+<!-- Dashboard footer -->
+<footer class="nishk-footer">
+  ◈ NISHK v0.1 — Prototype Build<br>
+  Data from public sources &nbsp;|&nbsp; Not for production use
+</footer>
 
 <!-- Graph tooltip — fixed floating div, controlled by hoverNode/blurNode events -->
 <div id="graph-tooltip" style="
