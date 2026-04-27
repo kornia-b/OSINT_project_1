@@ -1,12 +1,14 @@
+import json
 import os
 import random
 import uuid
 from datetime import datetime, timezone
 
-from flask import Flask, render_template, request, make_response
+from flask import Flask, render_template, request, make_response, jsonify
 from dotenv import load_dotenv
 
 from profiler import build_profile
+from connectors.nlq_connector import parse_nlq
 
 load_dotenv()
 
@@ -104,6 +106,21 @@ def export_pdf(profile_id):
     response.headers["Content-Type"] = "application/pdf"
     response.headers["Content-Disposition"] = f'attachment; filename="{filename}"'
     return response
+
+
+@app.route("/nlq", methods=["POST"])
+def nlq_query():
+    user_query = request.form.get("nlq_query", "").strip()
+    if not user_query:
+        return jsonify({"intent": "unclear", "interpretation": "Empty query"})
+
+    try:
+        history = json.loads(request.form.get("history_json", "[]"))
+    except (ValueError, TypeError):
+        history = []
+
+    parsed = parse_nlq(user_query, history)
+    return jsonify(parsed)
 
 
 if __name__ == "__main__":

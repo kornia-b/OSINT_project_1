@@ -677,6 +677,207 @@
       color: #86efac;
     }
 
+    /* ── NLQ Panel ──────────────────────────── */
+    .nlq-panel {
+      border-radius: 14px;
+      border: 1px solid transparent;
+      background:
+        linear-gradient(#0d0d1a, #0d0d1a) padding-box,
+        linear-gradient(135deg, #00f5ff88, #9c27b088) border-box;
+      margin-bottom: 1.25rem;
+      overflow: hidden;
+    }
+    .nlq-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.85rem 1.3rem 0.75rem;
+      background: linear-gradient(90deg, #00f5ff06, #9c27b006);
+    }
+    .nlq-header-title {
+      font-family: "Courier New", monospace;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #00f5ff;
+    }
+    .nlq-beta {
+      font-size: 0.63rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      background: #9c27b022;
+      border: 1px solid #9c27b066;
+      color: #ce93d8;
+    }
+    .nlq-body { padding: 1rem 1.3rem 1.15rem; }
+    .nlq-input-row {
+      display: flex;
+      gap: 0.6rem;
+      align-items: stretch;
+    }
+    #nlq-input {
+      flex: 1;
+      background: #080814;
+      border: 1px solid #00f5ff33;
+      border-radius: 8px;
+      color: #e2e8f0;
+      font-family: "Courier New", monospace;
+      font-size: 0.92rem;
+      padding: 0.7rem 1rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    #nlq-input:focus {
+      border-color: #00f5ff88;
+      box-shadow: 0 0 0 2px #00f5ff18;
+    }
+    #nlq-input::placeholder { color: #3b4a6b; font-style: italic; }
+    .nlq-ask-btn {
+      background: linear-gradient(135deg, #005f66, #4a1070);
+      border: 1px solid #00f5ff44;
+      border-radius: 8px;
+      color: #00f5ff;
+      cursor: pointer;
+      font-family: "Courier New", monospace;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 0.7rem 1.2rem;
+      transition: background 0.2s, box-shadow 0.2s;
+      white-space: nowrap;
+    }
+    .nlq-ask-btn:hover {
+      background: linear-gradient(135deg, #007a82, #6a1ba0);
+      box-shadow: 0 0 14px #00f5ff33;
+    }
+    .nlq-ask-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .nlq-examples {
+      margin-top: 0.65rem;
+      font-size: 0.75rem;
+      color: #3b4a6b;
+      font-style: italic;
+      line-height: 1.7;
+    }
+    .nlq-examples span { color: #4a5a7b; cursor: pointer; transition: color 0.15s; }
+    .nlq-examples span:hover { color: #00f5ffaa; }
+    .nlq-divider {
+      margin-top: 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid #ffffff08;
+      text-align: center;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #2a3050;
+    }
+    /* Interpretation box */
+    .nlq-interpretation {
+      background: #050a14;
+      border: 1px solid #00f5ff22;
+      border-radius: 10px;
+      padding: 0.85rem 1.1rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+    .nlq-interpretation.visible { display: block; }
+    .nlq-interp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.4rem;
+    }
+    .nlq-interp-label {
+      font-family: "Courier New", monospace;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #00f5ff;
+    }
+    .nlq-interp-dismiss {
+      background: none;
+      border: none;
+      color: #3b4a6b;
+      cursor: pointer;
+      font-size: 0.75rem;
+      padding: 0;
+      transition: color 0.15s;
+    }
+    .nlq-interp-dismiss:hover { color: #ef4444; }
+    .nlq-interp-text { font-size: 0.85rem; color: #b0bec5; line-height: 1.5; }
+    .nlq-confidence {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.72rem;
+      margin-top: 0.45rem;
+    }
+    .nlq-conf-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .nlq-conf-dot.high   { background: #34d399; }
+    .nlq-conf-dot.medium { background: #fbbf24; }
+    .nlq-conf-dot.low    { background: #ef4444; }
+    .nlq-conf-label.high   { color: #34d399; }
+    .nlq-conf-label.medium { color: #fbbf24; }
+    .nlq-conf-label.low    { color: #ef4444; }
+    /* NLQ error box */
+    .nlq-error-box {
+      background: #1f0f00;
+      border: 1px solid #7f3d00;
+      border-radius: 10px;
+      padding: 0.85rem 1.1rem;
+      margin-bottom: 1rem;
+      display: none;
+      font-size: 0.85rem;
+      color: #fbbf24;
+      line-height: 1.6;
+    }
+    .nlq-error-box.visible { display: block; }
+    /* NLQ loading state */
+    .nlq-loading-msg {
+      font-size: 0.8rem;
+      color: #00f5ff88;
+      font-family: "Courier New", monospace;
+      margin-top: 0.5rem;
+      display: none;
+    }
+    .nlq-loading-msg.visible { display: block; }
+    /* History filter active state */
+    .history-panel.filtered .history-toggle {
+      border-color: #00f5ff44;
+      color: #00f5ff;
+    }
+    .nlq-filter-badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      background: #00f5ff18;
+      border: 1px solid #00f5ff44;
+      color: #00f5ff;
+      margin-left: 0.5rem;
+      vertical-align: middle;
+    }
+    .nlq-clear-filter {
+      font-size: 0.7rem;
+      color: #3b4a6b;
+      background: none;
+      border: none;
+      cursor: pointer;
+      margin-left: 0.4rem;
+      transition: color 0.15s;
+    }
+    .nlq-clear-filter:hover { color: #ef4444; }
+
     /* ── AI Intelligence Brief card ─────────── */
     @keyframes aiBorderPulse {
       0%, 100% { box-shadow: 0 0 20px #00f5ff11, 0 0 40px #9c27b011; }
@@ -1324,6 +1525,43 @@
     <h1>OSINT Entity Profiler</h1>
     <p>Aggregate open-source intelligence on a named subject</p>
   </header>
+
+  <!-- ── NLQ Interpretation Box ── -->
+  <div class="nlq-interpretation" id="nlq-interpretation">
+    <div class="nlq-interp-header">
+      <span class="nlq-interp-label">🤖 Interpretation</span>
+      <button class="nlq-interp-dismiss" onclick="dismissInterpretation()" type="button">✕ Use form instead</button>
+    </div>
+    <div class="nlq-interp-text" id="nlq-interp-text"></div>
+    <div class="nlq-confidence" id="nlq-confidence"></div>
+  </div>
+
+  <!-- ── NLQ Error Box ── -->
+  <div class="nlq-error-box" id="nlq-error-box"></div>
+
+  <!-- ── Natural Language Search ── -->
+  <div class="nlq-panel">
+    <div class="nlq-header">
+      <span class="nlq-header-title">✨ Natural Language Search</span>
+      <span class="nlq-beta">BETA</span>
+    </div>
+    <div class="nlq-body">
+      <div class="nlq-input-row">
+        <input type="text" id="nlq-input"
+          placeholder="🔍 Ask Nishk anything… e.g. 'Tell me about Nirav Modi'"
+          onkeydown="if(event.key==='Enter') askNishk()" />
+        <button class="nlq-ask-btn" id="nlq-ask-btn" type="button" onclick="askNishk()">✨ ASK NISHK →</button>
+      </div>
+      <div class="nlq-loading-msg" id="nlq-loading-msg">🤔 Understanding your query…</div>
+      <div class="nlq-examples">
+        Examples: &nbsp;
+        <span onclick="setNlq('Tell me about Nirav Modi')">"Tell me about Nirav Modi"</span> &nbsp;·&nbsp;
+        <span onclick="setNlq('Show my high risk searches')">"Show my high risk searches"</span> &nbsp;·&nbsp;
+        <span onclick="setNlq('The diamond merchant who fled to UK')">"The diamond merchant who fled to UK"</span>
+      </div>
+      <div class="nlq-divider">─── or use structured form below ───</div>
+    </div>
+  </div>
 
   <!-- ── Search History ── -->
   <div class="history-panel" id="history-panel">
@@ -2146,6 +2384,209 @@
 
   // Initial render on page load
   historyRender();
+
+  // ── NLQ ──────────────────────────────────────────────────────────────────────
+
+  function setNlq(text) {
+    document.getElementById('nlq-input').value = text;
+    document.getElementById('nlq-input').focus();
+  }
+
+  function showNlqLoading() {
+    document.getElementById('nlq-loading-msg').classList.add('visible');
+    document.getElementById('nlq-ask-btn').disabled = true;
+    document.getElementById('nlq-error-box').classList.remove('visible');
+    document.getElementById('nlq-interpretation').classList.remove('visible');
+  }
+
+  function hideNlqLoading() {
+    document.getElementById('nlq-loading-msg').classList.remove('visible');
+    document.getElementById('nlq-ask-btn').disabled = false;
+  }
+
+  function showInterpretation(result) {
+    var box    = document.getElementById('nlq-interpretation');
+    var text   = document.getElementById('nlq-interp-text');
+    var conf   = document.getElementById('nlq-confidence');
+    text.textContent = result.interpretation || '';
+    var level  = (result.confidence || 'medium').toLowerCase();
+    conf.innerHTML   =
+      '<span class="nlq-conf-dot ' + level + '"></span>' +
+      '<span class="nlq-conf-label ' + level + '">Confidence: ' + level.toUpperCase() + '</span>';
+    box.classList.add('visible');
+  }
+
+  function dismissInterpretation() {
+    document.getElementById('nlq-interpretation').classList.remove('visible');
+    document.getElementById('nlq-error-box').classList.remove('visible');
+  }
+
+  function showNlqError(result) {
+    var box = document.getElementById('nlq-error-box');
+    var msg = '⚠️ Could not understand query.';
+    if (result.interpretation) msg += '<br>' + result.interpretation;
+    if (result.suggestion)     msg += '<br><span style="color:#9ca3af">Suggestion: ' + result.suggestion + '</span>';
+    msg += '<br><span style="color:#9ca3af">Try: "Tell me about [person name]"</span>';
+    box.innerHTML = msg;
+    box.classList.add('visible');
+  }
+
+  // Filter the history panel by NLQ criteria
+  var _nlqFilterActive = false;
+
+  function filterHistoryDisplay(result) {
+    var items = historyLoad();
+    var riskFilter = (result.risk_level || '').toUpperCase();
+    var cityFilter = (result.city_filter || '').toLowerCase();
+    var nameFilter = (result.name_contains || '').toLowerCase();
+
+    var filtered = items.filter(function(e) {
+      var ok = true;
+      if (riskFilter && e.risk_level) ok = ok && e.risk_level.toUpperCase() === riskFilter;
+      if (cityFilter) ok = ok && (e.city || '').toLowerCase().indexOf(cityFilter) !== -1;
+      if (nameFilter) ok = ok && (e.name || '').toLowerCase().indexOf(nameFilter) !== -1;
+      return ok;
+    });
+
+    _nlqFilterActive = true;
+
+    // Force history open
+    historyOpen = true;
+    document.getElementById('history-body').classList.remove('collapsed');
+    document.getElementById('history-toggle').setAttribute('aria-expanded', 'true');
+
+    // Render filtered list
+    var list     = document.getElementById('history-list');
+    var emptyMsg = document.getElementById('history-empty');
+    var clearRow = document.getElementById('history-clear-row');
+    var label    = document.getElementById('history-toggle-label');
+
+    label.innerHTML = '▼ RECENT SEARCHES (' + filtered.length + ')' +
+      '<span class="nlq-filter-badge">FILTERED</span>' +
+      '<button class="nlq-clear-filter" onclick="clearNlqFilter(event)" type="button">✕ clear</button>';
+
+    list.innerHTML = '';
+
+    if (filtered.length === 0) {
+      emptyMsg.style.display = 'block';
+      clearRow.style.display = 'none';
+      emptyMsg.textContent   = 'No searches match this filter.';
+      return;
+    }
+
+    emptyMsg.style.display = 'none';
+    clearRow.style.display = 'none';
+
+    filtered.forEach(function(entry) {
+      var li    = document.createElement('li');
+      li.className = 'history-item';
+
+      var nameText = '🔍 ' + entry.name + (entry.city ? ' — ' + entry.city : '');
+      var meta     = [entry.domain, historyFmt(entry.timestamp)].filter(Boolean).join(' · ');
+      if (entry.risk_level) meta = entry.risk_level + ' RISK · ' + meta;
+
+      var main    = document.createElement('div');
+      main.className = 'history-item-main';
+      var nameDiv = document.createElement('div');
+      nameDiv.className = 'history-item-name';
+      nameDiv.textContent = nameText;
+      var metaDiv = document.createElement('div');
+      metaDiv.className = 'history-item-meta';
+      metaDiv.textContent = meta;
+      main.appendChild(nameDiv);
+      main.appendChild(metaDiv);
+
+      (function(e) {
+        li.addEventListener('click', function() { historyApply(e); });
+      })(entry);
+
+      li.appendChild(main);
+      list.appendChild(li);
+    });
+  }
+
+  function clearNlqFilter(e) {
+    if (e) e.stopPropagation();
+    _nlqFilterActive = false;
+    historyRender();
+    document.getElementById('nlq-interpretation').classList.remove('visible');
+    document.getElementById('nlq-error-box').classList.remove('visible');
+  }
+
+  async function askNishk() {
+    var query = document.getElementById('nlq-input').value.trim();
+    if (!query) return;
+
+    showNlqLoading();
+
+    var formData = new FormData();
+    formData.append('nlq_query', query);
+    formData.append('history_json', JSON.stringify(historyLoad().slice(0, 5)));
+
+    try {
+      var response = await fetch('/nlq', { method: 'POST', body: formData });
+      var result   = await response.json();
+    } catch (err) {
+      hideNlqLoading();
+      showNlqError({ interpretation: 'Network error: ' + err.message });
+      return;
+    }
+
+    hideNlqLoading();
+
+    if (result.intent === 'single_search') {
+      // Persist interpretation so it survives the full-page form reload
+      try { sessionStorage.setItem('nishk_nlq_result', JSON.stringify(result)); } catch(e) {}
+      // Clear stale form values before applying NLQ result
+      document.getElementById('name').value      = '';
+      document.getElementById('city').value      = '';
+      document.getElementById('domain').value    = '';
+      document.getElementById('exact_age').value = '';
+      document.getElementById('min_age').value   = '';
+      document.getElementById('max_age').value   = '';
+      // Apply parsed values
+      document.getElementById('name').value       = result.name       || '';
+      document.getElementById('city').value       = result.city       || '';
+      document.getElementById('domain').value     = result.domain     || '';
+      document.getElementById('exact_age').value  = result.exact_age  != null ? result.exact_age : '';
+      document.getElementById('min_age').value    = result.min_age    != null ? result.min_age    : '';
+      document.getElementById('max_age').value    = result.max_age    != null ? result.max_age    : '';
+      document.getElementById('search-form').submit();
+    } else if (result.intent === 'filter_history') {
+      showInterpretation(result);
+      filterHistoryDisplay(result);
+    } else {
+      showNlqError(result);
+    }
+  }
+
+  // Patch the latest history entry with risk_level when a profile result is present
+  {% if profile and profile.risk_assessment %}
+  (function() {
+    var items = historyLoad();
+    if (items.length > 0 && items[0].name === {{ profile.entity_name | tojson }}) {
+      items[0].risk_level = {{ profile.risk_assessment.risk_level | tojson }};
+      historySave(items);
+    }
+  })();
+  {% endif %}
+
+  // Restore NLQ interpretation box after form-submit page reload
+  (function() {
+    try {
+      var stored = sessionStorage.getItem('nishk_nlq_result');
+      if (!stored) return;
+      sessionStorage.removeItem('nishk_nlq_result');
+      var result = JSON.parse(stored);
+      // Only show if the rendered profile name matches what was searched
+      {% if profile %}
+      if ((result.name || '').toLowerCase() !== {{ profile.entity_name | tojson | lower }}) return;
+      {% else %}
+      return;
+      {% endif %}
+      showInterpretation(result);
+    } catch(e) {}
+  })();
 
   // ── Clear button ──────────────────────────────────────────────────────────
 
