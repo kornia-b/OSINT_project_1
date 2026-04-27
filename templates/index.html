@@ -677,6 +677,177 @@
       color: #86efac;
     }
 
+    /* ── AI Intelligence Brief card ─────────── */
+    @keyframes aiBorderPulse {
+      0%, 100% { box-shadow: 0 0 20px #00f5ff11, 0 0 40px #9c27b011; }
+      50%       { box-shadow: 0 0 32px #00f5ff2a, 0 0 60px #9c27b02a; }
+    }
+    .ai-brief-card {
+      border-radius: 14px;
+      border: 1.5px solid transparent;
+      background:
+        linear-gradient(#0d0d1a, #0d0d1a) padding-box,
+        linear-gradient(135deg, #00f5ff, #9c27b0) border-box;
+      animation: aiBorderPulse 4s ease-in-out infinite;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+    .ai-brief-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.9rem 1.3rem 0.7rem;
+      border-bottom: 1px solid #ffffff0f;
+      background: linear-gradient(90deg, #00f5ff08, #9c27b008);
+    }
+    .ai-brief-title {
+      font-family: "Courier New", monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #00f5ff;
+    }
+    .ai-brief-subtitle {
+      font-size: 0.7rem;
+      color: #6b7280;
+      margin-top: 0.15rem;
+    }
+    .ai-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #00f5ff22, #9c27b022);
+      border: 1px solid #00f5ff44;
+      color: #00f5ff;
+    }
+    .ai-brief-body { padding: 1.2rem 1.3rem; }
+    .ai-section-label {
+      font-family: "Courier New", monospace;
+      font-size: 0.64rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #00f5ff;
+      margin-bottom: 0.55rem;
+      margin-top: 1.1rem;
+    }
+    .ai-section-label:first-child { margin-top: 0; }
+    .ai-section-divider {
+      border: none;
+      border-top: 1px solid #ffffff0d;
+      margin: 1rem 0 0.85rem;
+    }
+    .ai-summary {
+      font-size: 0.88rem;
+      color: #dde2f0;
+      line-height: 1.65;
+    }
+    .ai-findings { list-style: none; }
+    .ai-findings li {
+      font-size: 0.85rem;
+      color: #c5cae9;
+      padding: 0.25rem 0;
+      padding-left: 1.1rem;
+      position: relative;
+      line-height: 1.5;
+    }
+    .ai-findings li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: #00f5ff;
+    }
+    .ai-associates {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+    }
+    .ai-associate-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      font-size: 0.75rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      background: #9c27b011;
+      border: 1px solid #9c27b055;
+      color: #ce93d8;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .ai-associate-pill:hover {
+      background: #9c27b033;
+      border-color: #ce93d8;
+      color: #fff;
+    }
+    .ai-timeline { list-style: none; }
+    .ai-timeline li {
+      font-family: "Courier New", monospace;
+      font-size: 0.82rem;
+      color: #b0bec5;
+      padding: 0.25rem 0;
+      padding-left: 1rem;
+      position: relative;
+      line-height: 1.5;
+    }
+    .ai-timeline li .ai-year {
+      color: #00f5ff;
+      font-weight: 700;
+    }
+    .ai-leads { list-style: none; }
+    .ai-leads li {
+      font-size: 0.85rem;
+      color: #c5cae9;
+      padding: 0.25rem 0;
+      padding-left: 1.3rem;
+      position: relative;
+      line-height: 1.5;
+    }
+    .ai-leads li::before {
+      content: "➔";
+      position: absolute;
+      left: 0;
+      color: #9c27b0;
+    }
+    .ai-confidence {
+      font-size: 0.78rem;
+      color: #6b7280;
+      font-style: italic;
+      margin-top: 0.75rem;
+    }
+    .ai-loading {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1.5rem;
+      color: #6b7280;
+      font-size: 0.88rem;
+    }
+    @keyframes spinDiamond {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+    .ai-spin {
+      display: inline-block;
+      color: #00f5ff;
+      animation: spinDiamond 1.2s linear infinite;
+      font-size: 1.1rem;
+    }
+    .ai-error {
+      padding: 1rem 1.3rem;
+      color: #fbbf24;
+      font-size: 0.85rem;
+      line-height: 1.6;
+    }
+    .ai-error-icon { color: #f59e0b; margin-right: 0.35rem; }
+
     /* ── Entity Graph ────────────────────────── */
     @keyframes egBorderPulse {
       0%, 100% { box-shadow: 0 0 28px #00f5ff0d, inset 0 0 28px #00000099; border-color: #00f5ff22; }
@@ -1254,7 +1425,7 @@
     <h2>{{ profile.entity_name }}</h2>
     <div style="display:flex;align-items:center;gap:0.9rem;">
       <span class="ts">{{ profile.generated_at }}</span>
-      <a href="/export-pdf" class="btn-export-pdf" target="_blank">⬇ Export PDF</a>
+      <a href="/export-pdf/{{ profile_id }}" class="btn-export-pdf" target="_blank">⬇ Export PDF</a>
     </div>
   </div>
 
@@ -1302,6 +1473,98 @@
     {% endif %}
   </div>
 
+  <!-- ── AI Intelligence Brief ── -->
+  {% set brief = profile.ai_brief %}
+  <div class="ai-brief-card">
+    <div class="ai-brief-header">
+      <div>
+        <div class="ai-brief-title">🤖 AI Intelligence Brief</div>
+        <div class="ai-brief-subtitle">Generated by Gemini 2.0 Flash</div>
+      </div>
+      <span class="ai-badge">🤖 AI</span>
+    </div>
+    <div class="ai-brief-body">
+      {% if brief and brief.error == 'none' %}
+
+        <div class="ai-section-label">Executive Summary</div>
+        <div class="ai-summary">{{ brief.executive_summary }}</div>
+
+        {% if brief.key_findings %}
+        <hr class="ai-section-divider">
+        <div class="ai-section-label">Key Findings</div>
+        <ul class="ai-findings">
+          {% for f in brief.key_findings %}
+          <li>{{ f }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+        {% if brief.associates_identified %}
+        <hr class="ai-section-divider">
+        <div class="ai-section-label">Associates Identified ({{ brief.associates_identified | length }})</div>
+        <div class="ai-associates">
+          {% for name in brief.associates_identified %}
+          <a class="ai-associate-pill"
+             href="https://www.google.com/search?q={{ name | urlencode }}"
+             target="_blank" rel="noopener">⚡ {{ name }}</a>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if brief.timeline_highlights %}
+        <hr class="ai-section-divider">
+        <div class="ai-section-label">Timeline</div>
+        <ul class="ai-timeline">
+          {% for entry in brief.timeline_highlights %}
+          <li>
+            {% if '—' in entry %}
+              <span class="ai-year">{{ entry.split('—')[0].strip() }}</span> — {{ entry.split('—', 1)[1].strip() }}
+            {% elif ': ' in entry %}
+              <span class="ai-year">{{ entry.split(': ')[0].strip() }}</span>: {{ entry.split(': ', 1)[1].strip() }}
+            {% else %}
+              {{ entry }}
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+        {% if brief.investigative_leads %}
+        <hr class="ai-section-divider">
+        <div class="ai-section-label">Investigative Leads</div>
+        <ul class="ai-leads">
+          {% for lead in brief.investigative_leads %}
+          <li>{{ lead }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+        {% if brief.confidence_note %}
+        <hr class="ai-section-divider">
+        <div class="ai-confidence">ℹ️ {{ brief.confidence_note }}</div>
+        {% endif %}
+
+      {% elif brief and brief.error == 'missing_api_key' %}
+      <div class="ai-error">
+        <span class="ai-error-icon">⚠️</span>
+        AI Brief unavailable. GEMINI_API_KEY not set in environment.
+        Manual analysis of data sources below recommended.
+      </div>
+      {% elif brief %}
+      <div class="ai-error">
+        <span class="ai-error-icon">⚠️</span>
+        AI Brief unavailable. {{ brief.error }}<br>
+        Manual analysis of data sources below recommended.
+      </div>
+      {% else %}
+      <div class="ai-loading">
+        <span class="ai-spin">◈</span>
+        Analyst reviewing all sources… (typically 5–10 seconds)
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
   <!-- Entity Graph -->
   <div class="card" style="border-color:#00f5ff1a;background:#000810;">
     <div class="card-header" style="background:#00060f;border-bottom:1px solid #00f5ff1a;">
@@ -1322,6 +1585,7 @@
         <span class="graph-legend-item"><span class="legend-glyph" style="color:#fff176">⬡</span><span style="color:#fff17699">Organisation</span></span>
         <span class="graph-legend-item"><span class="legend-glyph" style="color:#fbbf24">⬡</span><span style="color:#fbbf2499">Company</span></span>
         <span class="graph-legend-item"><span class="legend-glyph" style="color:#ff5252">⬡</span><span style="color:#ff525299">Court Case</span></span>
+        <span class="graph-legend-item"><span class="legend-glyph" style="color:#ce93d8">⬡</span><span style="color:#ce93d899">Associate</span></span>
       </div>
     </div>
   </div>
@@ -1939,7 +2203,8 @@
     org:        { bg: '#1a1a00',  border: '#fff176', glow: '#fff176', hlBg: '#2a2a00',  hlBorder: '#ffff8d' },
     company:    { bg: '#1a0e00',  border: '#fbbf24', glow: '#fbbf24', hlBg: '#2a1800',  hlBorder: '#fcd34d' },
     court:      { bg: '#1a0000',  border: '#ff5252', glow: '#ff5252', hlBg: '#2a0000',  hlBorder: '#ff8a80' },
-    subDomain:  { bg: '#0d0d1a',  border: '#7986cb', glow: '#7986cb', hlBg: '#1a1a33',  hlBorder: '#9fa8da' }
+    subDomain:  { bg: '#0d0d1a',  border: '#7986cb', glow: '#7986cb', hlBg: '#1a1a33',  hlBorder: '#9fa8da' },
+    associate:  { bg: '#1a0d1a',  border: '#ce93d8', glow: '#ce93d8', hlBg: '#2a1533',  hlBorder: '#e040fb' }
   };
 
   function nodeColor(p) {
@@ -2266,6 +2531,34 @@
       });
     }
 
+    // AI-identified associates — light violet hexagon
+    var aiBrief = p.ai_brief;
+    if (aiBrief && aiBrief.error === 'none' && Array.isArray(aiBrief.associates_identified)) {
+      aiBrief.associates_identified.forEach(function(assocName, i) {
+        var aid = 'associate_' + i;
+        var assocSearch = 'https://www.google.com/search?q=' + encodeURIComponent(assocName);
+        _nodeActions[aid] = { clickUrl: assocSearch, assocName: assocName };
+        branches.push(Object.assign({}, NODE_BASE, {
+          id: aid,
+          label: hexLabel(assocName.slice(0, 12)),
+          color: nodeColor(EG.associate), size: 35, shape: 'hexagon',
+          font: nodeFont(), shadow: nodeGlow(EG.associate.glow, 14),
+          title: '⚡ ' + assocName + '\nAI-identified associate\nClick to search on Google ↗',
+          type: 'associate'
+        }));
+        edges.push({
+          from: 'subject', to: aid,
+          label: 'ASSOCIATE',
+          font: { size: 8, color: '#ce93d888', strokeWidth: 0 },
+          color: { color: '#ce93d844', opacity: 0.6, highlight: '#ce93d8' },
+          dashes: [4, 4], width: 1,
+          smooth: { enabled: false },
+          chosen: false,
+          arrows: { to: { enabled: true, scaleFactor: 0.3, type: 'arrow' } }
+        });
+      });
+    }
+
     // Pre-position all branches in a perfect spoke circle
     _spokePositions(branches);
 
@@ -2453,6 +2746,10 @@
         if (actions.court) html += '<span style="color:#ff8a80">' + actions.court + '</span><br>';
         if (actions.date)  html += '<span style="color:#ff8a80">' + actions.date + '</span><br>';
         if (actions.clickUrl) html += '<br><span style="color:#ff5252;opacity:0.7">Click to open judgment ↗</span>';
+      } else if (nodeType === 'associate') {
+        html = '<strong style="color:#ce93d8">⚡ ' + (actions.assocName || '') + '</strong><br>';
+        html += '<span style="color:#9c27b0;font-size:10px">AI-identified associate</span><br>';
+        html += '<br><span style="color:#ce93d8;opacity:0.7">Click to search on Google ↗</span>';
       }
       if (html && _tooltip) {
         _tooltip.innerHTML = html;

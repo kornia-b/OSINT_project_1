@@ -7,6 +7,7 @@ from connectors.wikipedia_connector import lookup_wikipedia
 from connectors.indian_news_connector import fetch_indian_news
 from connectors.company_connector import fetch_company_data
 from connectors.court_connector import fetch_court_data
+from connectors.ai_brief_connector import generate_ai_brief
 from risk_engine import calculate_risk
 
 
@@ -63,4 +64,5 @@ def build_profile(
     }
 
     profile["risk_assessment"] = calculate_risk(profile)
+    profile["ai_brief"] = generate_ai_brief(profile)
     return profile

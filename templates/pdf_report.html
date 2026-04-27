@@ -254,6 +254,62 @@
   </div>
   {% endif %}
 
+  <!-- ── AI Intelligence Brief ── -->
+  {% set brief = profile.ai_brief %}
+  {% if brief and brief.error == 'none' %}
+  <div style="border:2px solid #00bcd4;border-radius:5px;margin:16px 0;padding:14px;background:#00bcd408;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div style="font-size:11pt;font-weight:700;color:#00838f;letter-spacing:0.06em;text-transform:uppercase;">🤖 AI Intelligence Brief</div>
+      <div style="font-size:7pt;color:#00bcd4;border:1px solid #00bcd4;padding:2px 8px;border-radius:999px;">{{ brief.generated_by }}</div>
+    </div>
+
+    {% if brief.executive_summary %}
+    <div style="font-size:7pt;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#00838f;margin-bottom:4px;border-left:3px solid #00bcd4;padding-left:6px;">Executive Summary</div>
+    <div style="font-size:9pt;color:#1f1f2e;line-height:1.6;margin-bottom:10px;">{{ brief.executive_summary }}</div>
+    {% endif %}
+
+    {% if brief.key_findings %}
+    <div style="font-size:7pt;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#00838f;margin-bottom:4px;border-left:3px solid #00bcd4;padding-left:6px;">Key Findings</div>
+    <ul style="margin:0 0 10px 16px;padding:0;font-size:9pt;color:#1f1f2e;line-height:1.7;">
+      {% for f in brief.key_findings %}
+      <li style="margin:2px 0;">{{ f }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if brief.associates_identified %}
+    <div style="font-size:7pt;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#00838f;margin-bottom:6px;border-left:3px solid #00bcd4;padding-left:6px;">Associates Identified ({{ brief.associates_identified | length }})</div>
+    <div style="margin-bottom:10px;">
+      {% for name in brief.associates_identified %}
+      <span style="display:inline-block;border:1px solid #00bcd4;color:#00838f;padding:2px 8px;margin:2px 3px;font-size:9pt;border-radius:3px;background:#e0f7fa;">⚡ {{ name }}</span>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if brief.timeline_highlights %}
+    <div style="font-size:7pt;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#00838f;margin-bottom:4px;border-left:3px solid #00bcd4;padding-left:6px;">Timeline</div>
+    <ul style="margin:0 0 10px 16px;padding:0;font-size:9pt;font-family:'Courier New',monospace;color:#1f1f2e;line-height:1.7;">
+      {% for entry in brief.timeline_highlights %}
+      <li style="margin:2px 0;">{{ entry }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if brief.investigative_leads %}
+    <div style="font-size:7pt;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#00838f;margin-bottom:4px;border-left:3px solid #00bcd4;padding-left:6px;">Investigative Leads</div>
+    <ul style="margin:0 0 10px 16px;padding:0;font-size:9pt;color:#1f1f2e;line-height:1.7;list-style:none;">
+      {% for lead in brief.investigative_leads %}
+      <li style="margin:2px 0;">➔ {{ lead }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if brief.confidence_note %}
+    <div style="font-size:8pt;color:#546e7a;font-style:italic;border-top:1px solid #b2ebf2;padding-top:6px;margin-top:6px;">ℹ️ {{ brief.confidence_note }}</div>
+    {% endif %}
+  </div>
+  {% endif %}
+
   <!-- ── Location ── -->
   {% set loc = profile.location %}
   {% if loc.city %}
