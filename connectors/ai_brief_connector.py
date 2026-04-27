@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import time
 import requests
@@ -34,7 +35,67 @@ Produce a JSON response with exactly these fields:
 
 6. confidence_note: One sentence about the reliability of this assessment based on data sources available.
 
-Return ONLY valid JSON. No markdown, no code fences, no preamble. Just the JSON object."""
+CRITICAL FORMATTING RULES:
+- Use only single quotes ' inside string values
+- NEVER use double quotes inside string content
+- Keep each string value under 250 characters
+- Escape any backslashes as \\\\
+- Do NOT include line breaks within string values
+- Return ONLY valid parseable JSON
+- No markdown, no code fences, no commentary"""
+
+
+def clean_gemini_json(text: str) -> str:
+    """Clean Gemini response before JSON parsing."""
+    text = text.strip()
+    if text.startswith("```"):
+        text = text.split("```")[1]
+        if text.startswith("json"):
+            text = text[4:]
+    text = text.strip()
+    start = text.find("{")
+    end = text.rfind("}")
+    if start >= 0 and end > start:
+        text = text[start:end + 1]
+    return text
+
+
+def extract_fields_with_regex(text: str) -> dict:
+    """Last resort field extraction if JSON parsing fails entirely."""
+    result = {
+        "executive_summary": "",
+        "key_findings": [],
+        "associates_identified": [],
+        "timeline_highlights": [],
+        "investigative_leads": [],
+        "confidence_note": "Partial parse — some fields may be missing.",
+    }
+
+    m = re.search(r'"executive_summary"\s*:\s*"([^"]{0,800})"', text, re.DOTALL)
+    if m:
+        result["executive_summary"] = m.group(1).strip()
+
+    findings_match = re.search(r'"key_findings"\s*:\s*\[(.*?)\]', text, re.DOTALL)
+    if findings_match:
+        items = re.findall(r'"([^"]{5,200})"', findings_match.group(1))
+        result["key_findings"] = items[:5]
+
+    assoc_match = re.search(r'"associates_identified"\s*:\s*\[(.*?)\]', text, re.DOTALL)
+    if assoc_match:
+        items = re.findall(r'"([^"]{2,80})"', assoc_match.group(1))
+        result["associates_identified"] = items[:10]
+
+    tl_match = re.search(r'"timeline_highlights"\s*:\s*\[(.*?)\]', text, re.DOTALL)
+    if tl_match:
+        items = re.findall(r'"([^"]{5,200})"', tl_match.group(1))
+        result["timeline_highlights"] = items[:7]
+
+    leads_match = re.search(r'"investigative_leads"\s*:\s*\[(.*?)\]', text, re.DOTALL)
+    if leads_match:
+        items = re.findall(r'"([^"]{5,200})"', leads_match.group(1))
+        result["investigative_leads"] = items[:5]
+
+    return result
 
 
 def _call_gemini(payload: dict, url: str, max_retries: int = 2) -> dict:
@@ -98,19 +159,29 @@ def generate_ai_brief(profile: dict) -> dict:
 
     try:
         data = _call_gemini(payload, url)
-
         text = data["candidates"][0]["content"]["parts"][0]["text"]
-        text = text.strip()
 
-        if text.startswith("```"):
-            text = text.split("```")[1]
-            if text.startswith("json"):
-                text = text[4:]
-        text = text.strip()
+        print("=" * 60)
+        print("RAW GEMINI RESPONSE:")
+        print(text[:2000])
+        print("=" * 60)
+        print(f"Total length: {len(text)}")
+        print(f"Starts with: {text[:50]}")
+        print(f"Ends with: {text[-50:]}")
+        print("=" * 60)
 
-        brief = json.loads(text)
-        brief["generated_by"] = "Gemini 2.5 Flash"
-        brief["error"] = "none"
+        try:
+            cleaned = clean_gemini_json(text)
+            brief = json.loads(cleaned)
+            brief["error"] = "none"
+        except json.JSONDecodeError:
+            brief = extract_fields_with_regex(text)
+            brief["error"] = "partial_parse"
+            brief["generated_by"] = "Gemini 2.5 Flash (recovered)"
+
+        if "generated_by" not in brief:
+            brief["generated_by"] = "Gemini 2.5 Flash"
+
         return brief
 
     except Exception as e:
