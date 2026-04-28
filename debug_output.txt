@@ -1,0 +1,154 @@
+DEBUG URL: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AIzaSyD
+============================================================
+RAW GEMINI RESPONSE:
+```json
+{
+  "executive_summary": "Mukesh Dhirubhai Ambani is an Indian businessman, chairman and managing director of Reliance Industries, India's largest public company. As of April 2026, he is the richest person in Asia and 20th richest globally. He has attracted criticism for being a plutocrat, with reports of
+============================================================
+Total length: 314
+Starts with: ```json
+{
+  "executive_summary": "Mukesh Dhirubhai
+Ends with: d criticism for being a plutocrat, with reports of
+============================================================
+{
+  "entity_name": "Mukesh Ambani",
+  "location": {
+    "city": "Mumbai",
+    "lat": 19.054999,
+    "lon": 72.8692035
+  },
+  "age_filter_applied": "none",
+  "news_mentions": [
+    {
+      "title": "Mukesh Ambani’s daughter Isha Ambani achieved stunning transformation with THIS one habit, it is…",
+      "description": "Isha Ambani’s fitness journey highlights a consistent and mindful approach to daily routine changes. Her transformation reflects how small habits and disciplined choices can lead to visible results over time.",
+      "url": "https://www.india.com/lifestyle/mukesh-ambanis-daughter-isha-ambani-achieved-stunning-transformation-with-this-one-habit-it-is-home-made-gujarati-food-8394982/",
+      "published_at": "2026-04-27T15:45:35Z",
+      "source": "India.com"
+    },
+    {
+      "title": "Deepika Padukone’s daughter Dua attends live musical performance",
+      "description": "Ranveer Singh and wife Deepika Padukone took their daughter Dua to her first-ever live musical performance. The couple spent a Sunday morning at the Nita Mukesh Ambani Cultural Centre (NMACC), where they attended the Cocomelon Live musical. Ranveer said, 'It is a little extra special for us because this is our Dua baby's first show.”",
+      "url": "https://www.tribuneindia.com/news/entertainment/ranveer-singh-deepika-padukones-daughter-dua-attends-live-musical-performance/",
+      "published_at": "2026-04-27T11:42:13Z",
+      "source": "The Tribune"
+    },
+    {
+      "title": "Ranveer Singh and Deepika Padukone take Dua to her first live Cocomelon show: ‘It was a really lovely experience’",
+      "description": "Ranveer Singh and Deepika Padukone recently took their daughter Dua to her first live Cocomelon show at the Nita Mukesh Ambani Cultural Centre (NMACC).",
+      "url": "https://indianexpress.com/article/entertainment/bollywood/ranveer-singh-and-deepika-padukone-take-dua-padukone-singh-to-her-first-cocomelon-show-10657748/",
+      "published_at": "2026-04-27T08:55:42Z",
+      "source": "The Indian Express"
+    },
+    {
+      "title": "Ranveer Singh-Deepika Padukone Take Daughter Dua To Her First Live Musical Show, Calls It 'Extra Special'",
+      "description": "Soon-to-be parents for the second time, Ranveer Singh and Deepika Padukone spent a Sunday morning with their daughter Dua at the Nita Mukesh Ambani Cultural Centre (NMACC), where they attended the Cocomelon Live musical.",
+      "url": "https://www.republicworld.com/entertainment/bollywood/ranveer-singh-deepika-padukone-take-daughter-dua-to-her-first-live-musical-show-calls-it-extra-special",
+      "published_at": "2026-04-27T05:36:36Z",
+      "source": "Republic World"
+    },
+    {
+      "title": "Reliance Industries' highest share price target implies a 44% upside; Here are key triggers",
+      "description": "33 out of the 34 analysts who cover the stock have a \"buy\" rating, while one has a \"sell\" recommendation. Goldman Sachs currently has the highest price target on the Mukesh Ambani-led oil-to-telecom-to-retail conglomerate at ₹1,910, which implies an upside potential of 44% from Friday's closing levels for the stock.",
+      "url": "https://www.cnbctv18.com/market/reliance-industries-share-price-q4-result-reaction-jio-retail-o2c-highest-target-upside-buy-sell-19893651.htm",
+      "published_at": "2026-04-27T02:47:20Z",
+      "source": "CNBC TV18"
+    }
+  ],
+  "indian_news": [],
+  "whois_data": {},
+  "wikipedia_data": {
+    "found": true,
+    "summary": "Mukesh Dhirubhai Ambani is an Indian businessman. He is the chairman and managing director of Reliance Industries, the largest public company in India by market capitalisation in 2025. As of April 2026, he is the richest person in Asia and the 20th richest in the world, with a net worth of US$95.1 billion. He has attracted fame due to his growth and wealth, and criticism for being a plutocrat, and reports of market manipulation, political corruption, cronyism, and exploitation.",
+    "aliases": [],
+    "categories": [],
+    "url": "https://en.wikipedia.org/wiki/Mukesh_Ambani",
+    "thumbnail": "https://upload.wikimedia.org/wikipedia/commons/6/69/Mukesh_Ambani.jpg"
+  },
+  "company_data": {
+    "organisations_found": [],
+    "total_found": 0,
+    "source": "wikipedia_extraction",
+    "error": "none"
+  },
+  "court_data": {
+    "error": "none",
+    "cases_found": [
+      {
+        "title": "Reliance Natural Resources Ltd vs Reliance Industries Ltd on 7 May, 2010",
+        "court": "Supreme Court of India",
+        "date": "7 May, 2010",
+        "doc_type": "Court Document",
+        "citation": "",
+        "summary": "between Shri Mukesh Ambani and Shri Anil Ambani were personal to the Ambani family and the Board of RIL was not aware of the details ... Mukesh Ambani…",
+        "url": "https://indiankanoon.org/doc/1070490/"
+      },
+      {
+        "title": "Reliance Natural Resources Ltd. vs Reliance Industries Limited on 15 October, 2007",
+        "court": "Bombay High Court",
+        "date": "15 October, 2007",
+        "doc_type": "High Court Judgment",
+        "citation": "",
+        "summary": "Dhirubhai Ambani passed away. Sometime thereafter, differences started between Mukesh Ambani and Anil Ambani over the management and control of the gr…",
+        "url": "https://indiankanoon.org/doc/1877991/"
+      },
+      {
+        "title": "Mukesh Sah @ Mukesh Ambani @ Saroj Kumar ... vs The State Of Bihar on 19 July, 2019",
+        "court": "Patna High Court - Orders",
+        "date": "19 July, 2019",
+        "doc_type": "Court Document",
+        "citation": "",
+        "summary": "Mukesh Sah @ Mukesh Ambani @ Saroj Kumar ... vs The State Of Bihar on 19 July, 2019 Author: Vinod Kumar Sinha Bench: Vinod Kumar Sinha ... Case No.-18…",
+        "url": "https://indiankanoon.org/doc/43095930/"
+      },
+      {
+        "title": "Mukesh Sah @ Mukesh Ambani @ Saroj Kumar ... vs The State Of Bihar on 30 April, 2019",
+        "court": "Patna High Court - Orders",
+        "date": "30 April, 2019",
+        "doc_type": "Court Document",
+        "citation": "",
+        "summary": "Mukesh Sah @ Mukesh Ambani @ Saroj Kumar ... vs The State Of Bihar on 30 April, 2019 Author: Chakradhari Sharan Singh Bench: Chakradhari Sharan Singh …",
+        "url": "https://indiankanoon.org/doc/29221273/"
+      },
+      {
+        "title": "Mr. Mukesh D. Ambani vs Sebi on 4 December, 2023",
+        "court": "Securities Appellate Tribunal",
+        "date": "4 December, 2023",
+        "doc_type": "Court Document",
+        "citation": "",
+        "summary": "crores have been imposed upon noticee no. 2 Mukesh Ambani, Rs. 20 crores has been imposed upon noticee no. 3 Navi Mumbai SEZ Private Limited ... again…",
+        "url": "https://indiankanoon.org/doc/134579174/"
+      }
+    ],
+    "total_found": 5,
+    "flags": [
+      "Multiple courts"
+    ]
+  },
+  "generated_at": "2026-04-28T04:14:17.394160+00:00",
+  "risk_assessment": {
+    "risk_level": "MEDIUM",
+    "risk_score": 30,
+    "risk_colour": "#ffab40",
+    "risk_emoji": "🟡",
+    "flags": [
+      "SUSPICIOUS NEWS COVERAGE"
+    ],
+    "evidence": [
+      "5 civil/corporate case(s) (not scored)",
+      "Keywords found: fir, ed ",
+      "Wikipedia mentions: corruption"
+    ]
+  },
+  "ai_brief": {
+    "executive_summary": "",
+    "key_findings": [],
+    "associates_identified": [],
+    "timeline_highlights": [],
+    "investigative_leads": [],
+    "confidence_note": "Partial parse — some fields may be missing.",
+    "error": "partial_parse",
+    "generated_by": "Gemini 2.5 Flash (recovered)"
+  }
+}

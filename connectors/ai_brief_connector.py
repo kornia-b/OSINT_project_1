@@ -41,8 +41,7 @@ CRITICAL FORMATTING RULES:
 - Keep each string value under 250 characters
 - Escape any backslashes as \\\\
 - Do NOT include line breaks within string values
-- Return ONLY valid parseable JSON
-- No markdown, no code fences, no commentary"""
+- Return a valid JSON object with all 6 required fields populated. Each string value must be complete and properly closed."""
 
 
 def clean_gemini_json(text: str) -> str:
@@ -150,25 +149,18 @@ def generate_ai_brief(profile: dict) -> dict:
         f"?key={api_key}"
     )
 
-    print(f"DEBUG URL: {url[:100]}")
-
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {"temperature": 0.3, "maxOutputTokens": 2000},
+        "generationConfig": {
+            "temperature": 0.3,
+            "maxOutputTokens": 4000,
+            "responseMimeType": "application/json",
+        },
     }
 
     try:
         data = _call_gemini(payload, url)
         text = data["candidates"][0]["content"]["parts"][0]["text"]
-
-        print("=" * 60)
-        print("RAW GEMINI RESPONSE:")
-        print(text[:2000])
-        print("=" * 60)
-        print(f"Total length: {len(text)}")
-        print(f"Starts with: {text[:50]}")
-        print(f"Ends with: {text[-50:]}")
-        print("=" * 60)
 
         try:
             cleaned = clean_gemini_json(text)
